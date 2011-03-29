@@ -5,21 +5,39 @@ namespace NuTools.Df
 	// Todo: Get a hold of the disk number, eg. Disk 0
 	public class Drive : IDrive
 	{
+        public Drive()
+        {
+            Letter = "n/a";
+            Format = "n/a";
+            Size = 0;
+            Free = 0;
+            Avalible = 0;
+        }
+
 		public static IDrive LoadFrom(DriveInfo info)
 		{
-			if (info.DriveType != DriveType.Fixed && info.DriveType != DriveType.Removable)
+			if (!Supported(info))
 				return new NotSupportedDrive();
 
-			var drive = new Drive
-			{
-				Letter = info.Name,
-				Format = info.DriveFormat,
-				Size = info.TotalSize,
-				Free = info.TotalFreeSpace,
-				Avalible = info.AvailableFreeSpace
-			};
+            var drive = new Drive { Letter = info.Name };
+            if (info.IsReady)
+            {
+                drive = new Drive
+                {
+                    Letter = info.Name,
+                    Format = info.DriveFormat,
+                    Size = info.TotalSize,
+                    Free = info.TotalFreeSpace,
+                    Avalible = info.AvailableFreeSpace
+                };
+            }
 			return drive;
 		}
+
+        private static bool Supported(DriveInfo info)
+        {
+            return info.DriveType == DriveType.Fixed || info.DriveType == DriveType.Removable;
+        }
 
 		public string Letter { get; private set; }
 		public string Format { get; private set; }
