@@ -53,6 +53,9 @@
     <Reference Include="Cone">
       <HintPath>..\lib\Cone.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -62,12 +65,17 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DriveSummarySpecs.cs" />
     <Compile Include="OptionParserSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.csproj">
       <Project>{40ADF86A-FA42-4116-8F99-71CDE9EF946A}</Project>
       <Name>common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\df\df.csproj">
+      <Project>{6AF2A5A0-9CC5-456A-96A5-246CC833DE3B}</Project>
+      <Name>df</Name>
     </ProjectReference>
     <ProjectReference Include="..\grep\grep.csproj">
       <Project>{525A6E91-CD73-4882-B000-7EA07FB8ABC5}</Project>

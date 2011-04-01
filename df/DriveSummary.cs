@@ -15,7 +15,7 @@ namespace NuTools.Df
 			var summary = new StringBuilder();
 			foreach (var drive in drives)
 			{
-				var diskOut = string.Format("{0} {1} {2} {3} {4}", drive.Letter, drive.Format, drive.Size, drive.Free, drive.Avalible);
+				var diskOut = string.Format("{0} {1} {2} {3} {4}", drive.Letter, drive.Format, drive.Size, drive.Free, drive.Used);
 				summary.AppendLine(diskOut);
 			}
 			return summary.ToString();

@@ -6,6 +6,6 @@
 		public string Format { get { return "n/a"; } }
 		public long Size { get { return 0; } }
 		public long Free { get { return 0; } }
-		public long Avalible { get { return 0; } }
+		public long Used { get { return 0; } }
 	}
 }

@@ -11,8 +11,12 @@ namespace NuTools.Df
             Format = "n/a";
             Size = 0;
             Free = 0;
-            Avalible = 0;
         }
+
+		public Drive(string letter) : this() { Letter = letter; }
+		public Drive(string letter, string format) : this() { Letter = letter; Format = format; }
+		public Drive(string letter, string format, long size) : this() { Letter = letter; Format = format; Size = size; }
+		public Drive(string letter, string format, long size, long free) : this() { Letter = letter; Format = format; Size = size; Free = free; }
 
 		public static IDrive LoadFrom(DriveInfo info)
 		{
@@ -28,7 +32,6 @@ namespace NuTools.Df
                     Format = info.DriveFormat,
                     Size = info.TotalSize,
                     Free = info.TotalFreeSpace,
-                    Avalible = info.AvailableFreeSpace
                 };
             }
 			return drive;
@@ -43,6 +46,6 @@ namespace NuTools.Df
 		public string Format { get; private set; }
 		public long Size { get; private set; }
 		public long Free { get; private set; }
-		public long Avalible { get; private set; }
+		public long Used { get { return Size - Free; } }
 	}
 }

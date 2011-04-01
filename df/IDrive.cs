@@ -6,6 +6,6 @@
 		string Format { get; }
 		long Size { get; }
 		long Free { get; }
-		long Avalible { get; }
+		long Used { get; }
 	}
 }
