@@ -4,7 +4,7 @@ using NuTools.Common.OptionParserSyntax;
 
 namespace NuTools.Common
 {
-		public class OptionGroup : IOptionGroup, IOption
+	public class OptionGroup : IOptionGroup, IOption
 	{
 		public IOption On(string name, string description)
 		{

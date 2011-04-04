@@ -63,7 +63,7 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DriveSummarySpecs.cs" />
-    <Compile Include="OptionParserSpecs.cs" />
+    <Compile Include="Common\OptionParserSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.csproj">
