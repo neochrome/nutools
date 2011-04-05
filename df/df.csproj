@@ -70,6 +70,7 @@
     <Compile Include="Drive.cs" />
     <Compile Include="DriveRepository.cs" />
     <Compile Include="DriveSummary.cs" />
+    <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="IDrive.cs" />
     <Compile Include="NotSupportedDrive.cs" />
     <Compile Include="Program.cs" />

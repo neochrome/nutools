@@ -64,6 +64,7 @@
     </Compile>
     <Compile Include="df\DriveSummarySpecs.cs" />
     <Compile Include="Common\OptionParserSpecs.cs" />
+    <Compile Include="df\FileSizeFormatProviderSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.csproj">
