@@ -62,7 +62,7 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="DriveSummarySpecs.cs" />
+    <Compile Include="df\DriveSummarySpecs.cs" />
     <Compile Include="Common\OptionParserSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
