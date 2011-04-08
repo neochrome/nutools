@@ -1,7 +1,7 @@
 ﻿using Cone;
 using NuTools.Df;
 
-namespace NuTools.Specs.df
+namespace NuTools.Specs
 {
 	[Describe(typeof(FileSizeFormatProvider))]
 	public class FileSizeFormatProviderSpecs
