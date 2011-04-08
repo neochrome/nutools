@@ -14,7 +14,7 @@ namespace NuTools.Specs
 			Verify.That(() => result == "1.0B");
 		}
 
-		[Context("Converts")]
+		[Context("converts")]
 		public class Converts
 		{
 			[BeforeAll]
