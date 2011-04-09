@@ -64,6 +64,41 @@ namespace NuTools.Specs
 
 				Verify.That(() => output.Contains(expectedUsedSpace.ToString()));
 			}
+
+			public void total_size_including_weight()
+			{
+				var oneMegaByte = 1024 * 1024;
+				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", oneMegaByte) };
+				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
+
+				var output = summary.Render();
+
+				Verify.That(() => output.Contains("1.0M"));
+			}
+
+			public void total_free_space_including_weight()
+			{
+				var oneMegaByte = 1024 * 1024;
+				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 0, oneMegaByte) };
+				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
+
+				var output = summary.Render();
+
+				Verify.That(() => output.Contains("1.0M"));
+			}
+
+			public void total_used_space_including_weight()
+			{
+				var oneMegaByte = 1024 * 1024;
+				var free = oneMegaByte;
+				var totalSize = oneMegaByte + oneMegaByte + oneMegaByte;
+				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", totalSize, free) };
+				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
+
+				var output = summary.Render();
+
+				Verify.That(() => output.Contains("2.0M"));
+			}
 		}
 	}
 }
