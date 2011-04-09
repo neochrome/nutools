@@ -14,7 +14,9 @@ namespace NuTools.Df
 			var humanReadable = false;
 
 			var opts = new OptionParser();
-			opts.On("help", "display this help text and exit").Do(() => PrintUsageAndExit());
+			opts.Banner = "Usage: df [OPTION]... [FILE]...";
+			opts.Banner += "\nShow information about the file system on which each FILE resides,\nor all file systems by deafult.";
+			opts.On("help", "display this help text and exit").Do(() => { PrintUsageAndExit(opts.Summary()); });
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
 			opts.Parse(args);
 
@@ -33,10 +35,9 @@ namespace NuTools.Df
 				: new DriveSummary(driveRepository.GetDrives());
 		}
 
-		private static void PrintUsageAndExit()
+		private static void PrintUsageAndExit(string summary)
 		{
-			Console.WriteLine("Usage: df [OPTION]... [FILE]...");
-			Console.WriteLine("Show information about the file system on which each FILE resides, or all file systems by deafult.");
+			Console.WriteLine(summary);
 			Environment.Exit(0);
 		}
 	}
