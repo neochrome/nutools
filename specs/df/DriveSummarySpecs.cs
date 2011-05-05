@@ -99,6 +99,17 @@ namespace NuTools.Specs
 
 				Verify.That(() => output.Contains("2.0M"));
 			}
+
+			public void headers()
+			{
+				var summary = new DriveSummary(new Drive[] { new Drive(@"C:\") });
+				var output = summary.Render();
+				Verify.That(() => output.Contains("Drive"));
+				Verify.That(() => output.Contains("Type"));
+				Verify.That(() => output.Contains("Size"));
+				Verify.That(() => output.Contains("Used"));
+				Verify.That(() => output.Contains("Avail"));
+			}
 		}
 	}
 }

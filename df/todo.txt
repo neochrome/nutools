@@ -1,0 +1,8 @@
+﻿sFeatures
+[ ] Output list of options when displaying usage
+    Using common/OptionParser
+[x] Align drive summary output in equally sized columns (per column)
+[ ] Render usage as percentage
+[ ] Add column Use%
+[ ] Add disk id column (left most)
+ [ ] Move drive letter to far right column
