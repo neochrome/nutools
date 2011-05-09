@@ -11,104 +11,109 @@ namespace NuTools.Specs
 		[Context("renders")]
 		public class Rendering
 		{
-			public void drive_letter()
+			[Context("information")]
+			public class Information
 			{
-				var drives = new List<IDrive> { new Drive(@"C:\") };
-				var summary = new DriveSummary(drives);
-				
-				var output = summary.Render();
-				
-				Verify.That(() => output.Contains(@"C:\"));
+				[BeforeAll]
+				public void Context()
+				{
+					summaryOutput = "";
+					drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 1024, 1024 / 4) };
+					summary = new DriveSummary(drives);
+
+					summaryOutput = summary.Render();
+				}
+
+				public void headers()
+				{
+					Verify.That(() => summaryOutput.Contains("Drive"));
+					Verify.That(() => summaryOutput.Contains("Type"));
+					Verify.That(() => summaryOutput.Contains("Size"));
+					Verify.That(() => summaryOutput.Contains("Used"));
+					Verify.That(() => summaryOutput.Contains("Avail"));
+				}
+
+				public void drive_letter()
+				{
+					Verify.That(() => summaryOutput.Contains(@"C:\"));
+				}
+
+				public void file_system_format()
+				{
+					Verify.That(() => summaryOutput.Contains("FAT32"));
+				}
+
+				private string summaryOutput;
+				private IList<IDrive> drives;
+				private DriveSummary summary;
 			}
 
-			public void file_system_format()
+			[Context("as bytes")]
+			public class AsBytes
 			{
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32") };
-				var summary = new DriveSummary(drives);
+				[BeforeAll]
+				public void Context()
+				{
+					summaryOutput = "";
+					drives = new List<IDrive> { new Drive("C:\\", "FAT32", 1024, 1024 / 4) };
+					summary = new DriveSummary(drives);
 
-				var output = summary.Render();
+					summaryOutput = summary.Render();
+				}
 
-				Verify.That(() => output.Contains("FAT32"));
+				public void total_size()
+				{
+					Verify.That(() => summaryOutput.Contains("1024"));
+				}
+
+				public void total_free_space()
+				{
+					Verify.That(() => summaryOutput.Contains("768"));
+				}
+
+				public void total_used_space()
+				{
+					Verify.That(() => summaryOutput.Contains("256"));
+				}
+
+				private string summaryOutput;
+				private IList<IDrive> drives;
+				private DriveSummary summary;
 			}
 
-			public void total_size_in_bytes()
+			[Context("as human readable")]
+			public class AsHumanReadable
 			{
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 1024) };
-				var summary = new DriveSummary(drives);
+				[BeforeAll]
+				public void Context()
+				{
+					var oneMegaByte = 1024 * 1024;
 
-				var output = summary.Render();
+					summaryOutput = "";
+					drives = new List<IDrive> { new Drive("C:\\", "FAT32", oneMegaByte * 10, (oneMegaByte * 10) / 4) };
+					summary = new DriveSummary(drives, new FileSizeFormatProvider());
 
-				Verify.That(() => output.Contains("1024"));
-			}
+					summaryOutput = summary.Render();
+				}
+	
+				public void total_size()
+				{
+					Verify.That(() => summaryOutput.Contains("10.0M"));
+				}
 
-			public void total_free_space_in_bytes()
-			{
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 1024, 256) };
-				var summary = new DriveSummary(drives);
+				public void total_free_space()
+				{
+					Verify.That(() => summaryOutput.Contains("2.5M"));
+				}
 
-				var output = summary.Render();
+				public void total_used_space()
+				{
+					Verify.That(() => summaryOutput.Contains("7.5M"));
+				}
 
-				Verify.That(() => output.Contains("256"));
-			}
-
-			public void total_used_space_in_bytes()
-			{
-				var totalSize = 1024;
-				var free = 256;
-				var expectedUsedSpace = totalSize - free;
-				
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", totalSize, free) };
-				var summary = new DriveSummary(drives);
-
-				var output = summary.Render();
-
-				Verify.That(() => output.Contains(expectedUsedSpace.ToString()));
-			}
-
-			public void total_size_including_weight()
-			{
-				var oneMegaByte = 1024 * 1024;
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", oneMegaByte) };
-				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
-
-				var output = summary.Render();
-
-				Verify.That(() => output.Contains("1.0M"));
-			}
-
-			public void total_free_space_including_weight()
-			{
-				var oneMegaByte = 1024 * 1024;
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 0, oneMegaByte) };
-				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
-
-				var output = summary.Render();
-
-				Verify.That(() => output.Contains("1.0M"));
-			}
-
-			public void total_used_space_including_weight()
-			{
-				var oneMegaByte = 1024 * 1024;
-				var free = oneMegaByte;
-				var totalSize = oneMegaByte + oneMegaByte + oneMegaByte;
-				var drives = new List<IDrive> { new Drive(@"C:\", "FAT32", totalSize, free) };
-				var summary = new DriveSummary(drives, new FileSizeFormatProvider());
-
-				var output = summary.Render();
-
-				Verify.That(() => output.Contains("2.0M"));
-			}
-
-			public void headers()
-			{
-				var summary = new DriveSummary(new Drive[] { new Drive(@"C:\") });
-				var output = summary.Render();
-				Verify.That(() => output.Contains("Drive"));
-				Verify.That(() => output.Contains("Type"));
-				Verify.That(() => output.Contains("Size"));
-				Verify.That(() => output.Contains("Used"));
-				Verify.That(() => output.Contains("Avail"));
+				private string summaryOutput;
+				private IList<IDrive> drives;
+				private DriveSummary summary;
 			}
 		}
 	}
