@@ -52,7 +52,7 @@ namespace NuTools.Df
 
 		private int PercentUsedOf(IDrive drive)
 		{
-			return (int)Math.Round((drive.Used / (float)drive.Size) * 100);
+			return (drive.Size <= 0 || drive.Used <= 0) ? 0 : (int)Math.Round((drive.Used / (float)drive.Size) * 100);
 		}
 
 		private Func<IDrive, string> format;

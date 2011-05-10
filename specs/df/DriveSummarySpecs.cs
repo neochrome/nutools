@@ -139,6 +139,29 @@ namespace NuTools.Specs
 				private IList<IDrive> drives;
 				private DriveSummary summary;
 			}
+
+			[Context("empty drive")]
+			public class EmptyDrive
+			{
+				[BeforeAll]
+				public void Context()
+				{
+					summaryOutput = "";
+					drives = new List<IDrive> { new Drive(@"C:\", "FAT32", 0, 0) };
+					summary = new DriveSummary(drives);
+
+					summaryOutput = summary.Render();
+				}
+
+				public void total_used_space_as_percentage_of_entire_drive()
+				{
+					Verify.That(() => summaryOutput.Contains("0%"));
+				}
+
+				private string summaryOutput;
+				private IList<IDrive> drives;
+				private DriveSummary summary;
+			}
 		}
 	}
 }
