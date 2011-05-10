@@ -31,6 +31,7 @@ namespace NuTools.Specs
 					Verify.That(() => summaryOutput.Contains("Size"));
 					Verify.That(() => summaryOutput.Contains("Used"));
 					Verify.That(() => summaryOutput.Contains("Avail"));
+					Verify.That(() => summaryOutput.Contains("Use%"));
 				}
 
 				public void drive_letter()
@@ -109,6 +110,29 @@ namespace NuTools.Specs
 				public void total_used_space()
 				{
 					Verify.That(() => summaryOutput.Contains("7.5M"));
+				}
+
+				private string summaryOutput;
+				private IList<IDrive> drives;
+				private DriveSummary summary;
+			}
+
+			[Context("in percent")]
+			public class AsPercentage
+			{
+				[BeforeAll]
+				public void Context()
+				{
+					summaryOutput = "";
+					drives = new List<IDrive> { new Drive("C:\\", "FAT32", 1024, 1024 / 4) };
+					summary = new DriveSummary(drives);
+
+					summaryOutput = summary.Render();
+				}
+
+				public void total_used_space_as_percentage_of_entire_drive()
+				{
+					Verify.That(() => summaryOutput.Contains("75%"));
 				}
 
 				private string summaryOutput;

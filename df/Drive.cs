@@ -13,10 +13,13 @@ namespace NuTools.Df
             Free = 0;
         }
 
-		public Drive(string letter) : this() { Letter = letter; }
-		public Drive(string letter, string format) : this() { Letter = letter; Format = format; }
-		public Drive(string letter, string format, long size) : this() { Letter = letter; Format = format; Size = size; }
-		public Drive(string letter, string format, long size, long free) : this() { Letter = letter; Format = format; Size = size; Free = free; }
+		public Drive(string letter, string format, long size, long free) : this()
+		{
+			Letter = letter;
+			Format = format;
+			Size = size;
+			Free = free;
+		}
 
 		public static IDrive LoadFrom(DriveInfo info)
 		{
