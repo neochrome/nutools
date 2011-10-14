@@ -3,7 +3,7 @@ using NuTools.Common.OptionParserSyntax;
 
 namespace NuTools.Common
 {
-	public class Argument<T> : OptionBase, IArg<T>
+	public abstract class Argument : OptionBase
 	{
 		public string Name;
 
@@ -16,7 +16,10 @@ namespace NuTools.Common
 		{
 			return false;
 		}
+	}
 
+	public class Argument<T> : Argument, IArg<T>
+	{
 		public override bool Receive(string value)
 		{
 			action((T)Convert.ChangeType(value, typeof(T)));

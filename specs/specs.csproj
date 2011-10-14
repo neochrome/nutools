@@ -62,6 +62,7 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Common\FixedWithFormatProviderSpecs.cs" />
     <Compile Include="df\DriveSummarySpecs.cs" />
     <Compile Include="Common\OptionParserSpecs.cs" />
     <Compile Include="df\FileSizeFormatProviderSpecs.cs" />

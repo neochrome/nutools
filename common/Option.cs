@@ -30,8 +30,9 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public virtual string NameForDescription { get { return "--" + Name; } }
-		public virtual string ShortNameForDescription { get { return "-" + ShortName; } }
+		public virtual string NameForUsage { get { return string.IsNullOrEmpty(Name) ? "" : "--" + Name; } }
+		public virtual string ShortNameForUsage { get { return string.IsNullOrEmpty(ShortName) ? "" : "-" + ShortName; } }
+		public virtual string DescriptionForUsage { get { return Description; } }
 
 		private Action action = () => { };
 	}

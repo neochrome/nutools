@@ -25,7 +25,8 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public override string NameForDescription { get { return base.NameForDescription + "=" + ArgumentName; } }
+		public override string NameForUsage { get { return base.NameForUsage + "=" + ArgumentName; } }
+		public override string DescriptionForUsage { get { return Description.Replace("{ARG}", ArgumentName); } }
 
 		private Action<T> action = v => { };
 	}

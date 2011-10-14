@@ -47,56 +47,6 @@ namespace NuTools.Specs
             Verify.That(() => (a && b && c) == true);
         }
 
-        [Context("summary")]
-        public class Summary
-        {
-            public void should_have_banner_first()
-            {
-                var opts = new OptionParser();
-                opts.Banner = "the banner";
-                Verify.That(() => opts.Summary().StartsWith(opts.Banner));
-            }
-
-            [Pending]
-            public void should_have_aligned_descriptions()
-            {
-                var opts = new OptionParser();
-                opts.Banner = "the banner";
-                opts.On("long", 'a', "description").Do(() => { });
-                opts.On("longer", 'b', "description").Do(() => { });
-                opts.On("longest", 'c', "description").Do(() => { });
-                var summary = opts.Summary();
-                var reader = new StringReader(summary);
-            }
-        }
-        
-        [Pending]
-        public void should_display_summary()
-        {
-            var summary = string.Empty;
-
-            var opts = new OptionParser();
-            opts.Banner = "Usage: program [options]";
-            opts.On("retries", "number of {0} to retry the operation").WithArg<int>("TIMES");
-            opts.On("verbose", "Verbose output");
-            opts.Required.Arg<string>("FILE", "The input");
-            opts.On("help", "Displays this message").Do(() => summary = opts.Summary());
-
-            opts.Parse(new[] { "--help" });
-
-            Verify.That(() => summary.Contains(opts.Banner));
-            Verify.That(() => summary.Contains("[NUM]"));
-            Verify.That(() => summary.Contains("--retries"));
-            Verify.That(() => summary.Contains("NUM retries"));
-            Verify.That(() => summary.Contains("--verbose"));
-            Verify.That(() => summary.Contains("-v"));
-            Verify.That(() => summary.Contains("Verbose output"));
-            Verify.That(() => summary.Contains("FILE"));
-            Verify.That(() => summary.Contains("The input"));
-            Verify.That(() => summary.Contains("--help"));
-            Verify.That(() => summary.Contains("Displays this message"));
-        }
-
         [Context("option")]
         public class Option
         {
