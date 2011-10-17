@@ -111,8 +111,11 @@ namespace NuTools.Common
 				output.WriteLine(string.Format(formatter, " {0:" + maxOptionNameLength + "} {1}", o.NameForUsage, o.DescriptionForUsage));
 			};
 
-			output.WriteLine();
-			Options.OfType<Option>().Each(writeOption);
+			if (Options.OfType<Option>().Any())
+			{
+				output.WriteLine();
+				Options.OfType<Option>().Each(writeOption);
+			}
 
 			groups
 				.Each(g => {
