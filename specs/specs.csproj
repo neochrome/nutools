@@ -53,6 +53,10 @@
     <Reference Include="Cone">
       <HintPath>..\lib\Cone.dll</HintPath>
     </Reference>
+    <Reference Include="FakeItEasy, Version=1.6.4075.221, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\FakeItEasy.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -63,6 +67,7 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Common\FixedWithFormatProviderSpecs.cs" />
+    <Compile Include="Common\GlobSpecs.cs" />
     <Compile Include="df\DriveSummarySpecs.cs" />
     <Compile Include="Common\OptionParserSpecs.cs" />
     <Compile Include="df\FileSizeFormatProviderSpecs.cs" />
