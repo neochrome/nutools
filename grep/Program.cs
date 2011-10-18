@@ -16,7 +16,7 @@ namespace NuTools.Grep
 			opts.Header += "Example: grep -i 'hello world' menu.h main.c";
 
 			opts.Required.Arg<string>("PATTERN", "").Do(_ => { });
-			opts.Arg<string>("FILE", "").Do(_ => { });
+			opts.Args<string>("FILE", "").Do(_ => { });
 	
 			opts.In("Regexp selection and interpretation", g => {
 				g.On("extended-regexp", 'E', "PATTERN is an extended regular expression").Do(() => { });

@@ -7,9 +7,15 @@ namespace NuTools.Common.OptionParserSyntax
 		void Do(Action<T> action);
 	}
 
+	public interface IArgs<T>
+	{
+		void Do(Action<T[]> action);
+	}
+
 	public interface IArg
 	{
 		IArg<T> Arg<T>(string name, string description);
+		IArgs<T> Args<T>(string name, string description);
 	}
 
 	public interface INoArg

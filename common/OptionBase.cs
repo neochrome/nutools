@@ -10,5 +10,6 @@
 		public abstract bool ReceiveDefault();
 		public abstract bool Receive(string value);
 		public virtual bool HasArgument { get { return false; } }
+		public abstract void Tell();
 	}
 }

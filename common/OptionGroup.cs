@@ -65,6 +65,19 @@ namespace NuTools.Common
 			return option;
 		}
 
+		public IArgs<T> Args<T>(string name, string description)
+		{
+			var option = new Arguments<T>
+			{
+				Name = name,
+				Description = description,
+				Required = false
+			};
+			Options.Add(option);
+			currentOption = null;
+			return option;
+		}
+
 		public List<OptionBase> Options = new List<OptionBase>();
 
 		private OptionSpec currentOption;

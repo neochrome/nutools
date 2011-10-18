@@ -20,7 +20,6 @@ namespace NuTools.Common
 
 		public override bool Receive(string value)
 		{
-			action();
 			Parsed = true;
 			return true;
 		}
@@ -28,6 +27,12 @@ namespace NuTools.Common
 		public void Do(Action action)
 		{
 			this.action = action;
+		}
+
+		public override void Tell()
+		{
+			if (Parsed)
+				action();
 		}
 
 		public virtual string NameForUsage { get { return string.IsNullOrEmpty(Name) ? "" : "--" + Name; } }

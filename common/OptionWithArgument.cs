@@ -15,7 +15,7 @@ namespace NuTools.Common
 
 		public override bool Receive(string value)
 		{
-			action((T)Convert.ChangeType(value, typeof(T)));
+			receivedValue = (T)Convert.ChangeType(value, typeof(T));
 			Parsed = true;
 			return true;
 		}
@@ -25,9 +25,15 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
+		public override void Tell()
+		{
+			action(receivedValue);
+		}
+
 		public override string NameForUsage { get { return base.NameForUsage + "=" + ArgumentName; } }
 		public override string DescriptionForUsage { get { return Description.Replace("{ARG}", ArgumentName); } }
 
+		private T receivedValue;
 		private Action<T> action = v => { };
 	}
 }

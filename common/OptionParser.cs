@@ -54,7 +54,8 @@ namespace NuTools.Common
 					allParsedOk &= FindOption(string.Empty).Receive(args[i]);
 				}
 			}
-			return allParsedOk && Options.Where(o => o.Required).All(o => o.Parsed);
+			AllOptions.Each(o => o.Tell());
+			return allParsedOk && AllOptions.Where(o => o.Required).All(o => o.Parsed);
 		}
 
 		public string Header = string.Empty;
@@ -85,7 +86,7 @@ namespace NuTools.Common
 				AllOptions
 					.OfType<Argument>()
 					.OrderByDescending(a => a.Required)
-					.Select(a => a.Required ? a.Name : string.Format("[{0}]", a.Name))
+					.Select(a => a.Required ? a.Name : string.Format("[{0}]", a.Name) + (a.SupportsMultipleValues ? " ..." : "") )
 					.Aggregate("", (acc, a) => acc + " " + a)
 				);
 
