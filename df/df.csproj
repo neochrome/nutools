@@ -77,7 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="man.txt" />
-    <Content Include="todo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\common.csproj">

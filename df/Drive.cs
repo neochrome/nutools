@@ -2,7 +2,6 @@
 
 namespace NuTools.Df
 {
-	// Todo: Get a hold of the disk number, eg. Disk 0
 	public class Drive : IDrive
 	{
         public Drive()
