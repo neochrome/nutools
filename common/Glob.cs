@@ -9,23 +9,20 @@ namespace NuTools.Common
 	public class Glob : List<string>
 	{
 		public Glob() : this(Environment.CurrentDirectory) { }
-		public Glob(string path) : this(path, new DirectoryWrapper()) { }
 
-		public Glob(string path, IDirectory directory)
+		public Glob(string path)
 		{
 			this.path = path;
-			this.directory = directory;
 		}
 
 		public void Include(string pattern)
 		{
-			IncludeRecursive(path, pattern.Split(new[] { '/', '\\' }));
+			IncludeRecursive(path, pattern.Split(pathDelimiters));
 		}
 
 		public void Exclude(string pattern)
 		{
-			var translate = new Dictionary<string, string> { { "*", @".*" } };
-			var expression = new Regex(@"^" + Regex.Replace(pattern, @"\*", match => translate[match.Value]) + @"$");
+			var expression = new Regex(@"^" + Regex.Replace(pattern, @"\*", match => mapWildCardToRegex[match.Value]) + @"$");
 			RemoveAll(f => expression.IsMatch(f));
 		}
 
@@ -35,38 +32,22 @@ namespace NuTools.Common
 			var otherSegments = segments.Skip(1).ToArray();
 			if (otherSegments.Any())
 			{
-				directory
-					.EnumerateDirectories(path, pattern, pattern == "**" ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+				Directory
+					.GetDirectories(path, pattern, pattern == "**" ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
 					.Each(sub => IncludeRecursive(sub, otherSegments));
 			}
 			else
 			{
-				var files = directory.EnumerateFiles(path, pattern)
+				var files = 
+					Directory.GetFiles(path, pattern)
 					.Select(f => f.Replace(path, string.Empty).TrimStart('/', '\\'));
 				AddRange(files);
 			}
 		}
 
-		private readonly IDirectory directory;
 		private readonly string path;
-	}
+		private static readonly char[] pathDelimiters = new [] { '/', '\\' };
+		private static readonly Dictionary<string, string> mapWildCardToRegex = new Dictionary<string, string> { { "*", @".*" } };
 
-	public interface IDirectory
-	{
-		IEnumerable<string> EnumerateFiles(string path, string pattern);
-		IEnumerable<string> EnumerateDirectories(string path, string pattern, SearchOption searchOption);
-	}
-
-	public class DirectoryWrapper : IDirectory
-	{
-		public IEnumerable<string> EnumerateFiles(string path, string pattern)
-		{
-			return Directory.GetFiles(path, pattern);
-		}
-
-		public IEnumerable<string> EnumerateDirectories(string path, string pattern, SearchOption searchOption)
-		{
-			return Directory.GetDirectories(path, pattern, searchOption);
-		}
 	}
 }
