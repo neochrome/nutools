@@ -21,11 +21,8 @@ namespace NuTools.Grep
 				opts.Header = "Search for PATTERN in each FILE or standard input.\n";
 				opts.Header += "Example: grep -i 'hello world' menu.h main.c";
 
-				opts.Required.Arg<string>("PATTERN", "").Do(v => settings.Pattern = v);
-				opts.Args<string>("FILE", "").Do(files => { 
-					settings.Files = files;
-					settings.Output.Filenames = files.Length > 1;
-				});
+				opts.Required.Arg<string>("PATTERN", "").Do(pattern => settings.Pattern = pattern);
+				opts.Args<string>("FILE", "").Do(files => settings.Files = files);
 
 				opts.In("Regexp selection and interpretation", g =>
 				{
@@ -68,6 +65,8 @@ namespace NuTools.Grep
 				var regex = new Regex(settings.Pattern, settings.RegexOptions);
 				var fileNames = new Glob(Environment.CurrentDirectory);
 				settings.Files.Each(fileNames.Include);
+				if(!settings.Output.Filenames.HasValue)
+					settings.Output.Filenames = fileNames.Count > 1;
 		
 				var anyMatch = false;
 				fileNames.Each(fileName => {
@@ -81,7 +80,7 @@ namespace NuTools.Grep
 							if (regex.IsMatch(line) != settings.InvertMatch)
 							{
 								anyMatch = true;
-								if (settings.Output.Filenames)
+								if (settings.Output.Filenames.Value)
 									Console.Out.Write("{0}:", fileName);
 								if (settings.Output.LineNumbers)
 									Console.Out.Write("{0}:", lineNumber);
@@ -115,7 +114,7 @@ namespace NuTools.Grep
 		public struct OutputSettings
 		{
 			public bool LineNumbers;
-			public bool Filenames;
+			public bool? Filenames;
 		}
 	}
 }
