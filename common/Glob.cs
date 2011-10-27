@@ -10,14 +10,14 @@ namespace NuTools.Common
 	{
 		public Glob() : this(Environment.CurrentDirectory) { }
 
-		public Glob(string path)
+		public Glob(string rootPath)
 		{
-			this.path = path;
+			this.rootPath = rootPath;
 		}
 
 		public void Include(string pattern)
 		{
-			IncludeRecursive(path, pattern.Split(pathDelimiters));
+			IncludeRecursive(rootPath, pattern.Split(pathDelimiters));
 		}
 
 		public void Exclude(string pattern)
@@ -38,16 +38,16 @@ namespace NuTools.Common
 			}
 			else
 			{
-				var files = 
-					Directory.GetFiles(path, pattern)
-					.Select(f => f.Replace(path, string.Empty).TrimStart('/', '\\'));
+				var files =
+					Directory
+					.GetFiles(path, pattern)
+					.Select(f => f.Replace(rootPath, string.Empty).TrimStart('/', '\\'));
 				AddRange(files);
 			}
 		}
 
-		private readonly string path;
+		private readonly string rootPath;
 		private static readonly char[] pathDelimiters = new [] { '/', '\\' };
 		private static readonly Dictionary<string, string> mapWildCardToRegex = new Dictionary<string, string> { { "*", @".*" } };
-
 	}
 }

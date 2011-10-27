@@ -13,17 +13,19 @@ namespace NuTools.Grep
 	{
 		public static void Main(string[] args)
 		{
+			var settings = new Settings();
 			try
 			{
-				var settings = new Settings();
-
 				#region Option parsing
 				var opts = new OptionParser();
 				opts.Header = "Search for PATTERN in each FILE or standard input.\n";
 				opts.Header += "Example: grep -i 'hello world' menu.h main.c";
 
 				opts.Required.Arg<string>("PATTERN", "").Do(v => settings.Pattern = v);
-				opts.Args<string>("FILE", "").Do(v => settings.Files = v);
+				opts.Args<string>("FILE", "").Do(files => { 
+					settings.Files = files;
+					settings.Output.Filenames = files.Length > 1;
+				});
 
 				opts.In("Regexp selection and interpretation", g =>
 				{
@@ -31,8 +33,8 @@ namespace NuTools.Grep
 				});
 				opts.In("Miscellaneous", g =>
 				{
-					g.On("no-messages", 's', "n/a - suppress error messages").Do(() => { });
-					g.On("invert-match", 'v', "n/a - select non-matching lines").Do(() => { });
+					g.On("no-messages", 's', "suppress error messages").Do(() => settings.SuppressErrorMessages = true);
+					g.On("invert-match", 'v', "select non-matching lines").Do(() => settings.InvertMatch = true);
 					g.On("help", "display this help and exit").Do(() =>
 					{
 						opts.WriteUsage(Console.Out);
@@ -44,6 +46,11 @@ namespace NuTools.Grep
 						Environment.Exit(0);
 					});
 				});
+				opts.In("Output control", g => {
+					g.On("line-number", 'n', "print line number with output lines").Do(() => settings.Output.LineNumbers = true);
+					g.On("with-filename", 'H', "print the filename for each match").Do(() => settings.Output.Filenames = true);
+					g.On("no-filename", 'h', "print line number with output lines").Do(() => settings.Output.Filenames = false);
+				});
 
 				opts.Footer = "With no FILE, or when FILE is -, read standard input.  If less than\n";
 				opts.Footer += "two FILEs given, assume -h.  Exit status is 0 if match, 1 if no match,\n";
@@ -51,15 +58,17 @@ namespace NuTools.Grep
 
 				if (!opts.Parse(args))
 				{
-					opts.WriteUsage(Console.Out);
+					if (!settings.SuppressErrorMessages)
+						opts.WriteUsage(Console.Error);
 					Environment.Exit(2);
 				}
 				#endregion
 
+				#region Grepping
 				var regex = new Regex(settings.Pattern, settings.RegexOptions);
 				var fileNames = new Glob(Environment.CurrentDirectory);
 				settings.Files.Each(fileNames.Include);
-				
+		
 				var anyMatch = false;
 				fileNames.Each(fileName => {
 					using (var file = File.OpenText(fileName))
@@ -69,20 +78,26 @@ namespace NuTools.Grep
 						while ((line = file.ReadLine()) != null)
 						{
 							lineNumber++;
-							if (regex.IsMatch(line))
+							if (regex.IsMatch(line) != settings.InvertMatch)
 							{
 								anyMatch = true;
-								Console.Out.WriteLine("[{0}:{1}] {2}", fileName, lineNumber, line);
+								if (settings.Output.Filenames)
+									Console.Out.Write("{0}:", fileName);
+								if (settings.Output.LineNumbers)
+									Console.Out.Write("{0}:", lineNumber);
+								Console.Out.WriteLine(line);
 							}
 						}
 					}
 				});
+				#endregion
 
 				Environment.Exit(anyMatch ? 0 : 1);
 			}
 			catch (Exception ex)
 			{
-				Console.Out.WriteLine(ex.Message);
+				if(!settings.SuppressErrorMessages)
+					Console.Error.WriteLine(ex.Message);
 				Environment.Exit(2);
 			}
 		}
@@ -93,5 +108,14 @@ namespace NuTools.Grep
 		public RegexOptions RegexOptions;
 		public string Pattern;
 		public string[] Files;
+		public bool InvertMatch;
+		public bool SuppressErrorMessages;
+		
+		public OutputSettings Output;
+		public struct OutputSettings
+		{
+			public bool LineNumbers;
+			public bool Filenames;
+		}
 	}
 }
