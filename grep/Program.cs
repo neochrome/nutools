@@ -1,8 +1,11 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using NuTools.Common;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+
+using NuTools.Common;
 
 [assembly: AssemblyTitle("grep")]
 [assembly: AssemblyDescription("a grep utility")]
@@ -13,6 +16,7 @@ namespace NuTools.Grep
 	{
 		public static void Main(string[] args)
 		{
+			Func<string, bool> fromStdIn = f => f == "-";
 			var settings = new Settings();
 			try
 			{
@@ -22,7 +26,11 @@ namespace NuTools.Grep
 				opts.Header += "Example: grep -i 'hello world' menu.h main.c";
 
 				opts.Required.Arg<string>("PATTERN", "").Do(pattern => settings.Pattern = pattern);
-				opts.Args<string>("FILE", "").Do(files => settings.Files = files);
+				opts.Args<string>("FILE", "").Do(files => {
+					if(files.Count(fromStdIn) > 1)
+						throw new ArgumentException("Only one read from stdin (-) allowed.", "FILE");
+					settings.Files.AddRange(files);
+				});
 
 				opts.In("Regexp selection and interpretation", g =>
 				{
@@ -50,7 +58,7 @@ namespace NuTools.Grep
 				});
 
 				opts.Footer = "With no FILE, or when FILE is -, read standard input.  If less than\n";
-				opts.Footer += "two FILEs given, assume -h.  Exit status is 0 if match, 1 if no match,\n";
+				opts.Footer += "two FILEs given, assume -h. Exit status is 0 if match, 1 if no match,\n";
 				opts.Footer += "and 2 if trouble.";
 
 				if (!opts.Parse(args))
@@ -64,13 +72,18 @@ namespace NuTools.Grep
 				#region Grepping
 				var regex = new Regex(settings.Pattern, settings.RegexOptions);
 				var fileNames = new Glob(Environment.CurrentDirectory);
-				settings.Files.Each(fileNames.Include);
+
+				settings.Files.Except(settings.Files.Where(fromStdIn)).Each(fileNames.Include);
+				var inputs = fileNames.Select(f => new IOItem{ Name = f, Open = () => File.OpenText(f) }).ToList();
+				if(settings.Files.Any(fromStdIn))
+					inputs.Insert(0, new IOItem { Name = "(standard input)", Open = () => new StreamReader(Console.OpenStandardInput()) });
+
 				if(!settings.Output.Filenames.HasValue)
-					settings.Output.Filenames = fileNames.Count > 1;
-		
+					settings.Output.Filenames = inputs.Count > 1;
+
 				var anyMatch = false;
-				fileNames.Each(fileName => {
-					using (var file = File.OpenText(fileName))
+				inputs.Each(input => {
+					using (var file = input.Open())
 					{
 						string line;
 						var lineNumber = 0;
@@ -81,7 +94,7 @@ namespace NuTools.Grep
 							{
 								anyMatch = true;
 								if (settings.Output.Filenames.Value)
-									Console.Out.Write("{0}:", fileName);
+									Console.Out.Write("{0}:", input.Name);
 								if (settings.Output.LineNumbers)
 									Console.Out.Write("{0}:", lineNumber);
 								Console.Out.WriteLine(line);
@@ -101,12 +114,18 @@ namespace NuTools.Grep
 			}
 		}
 	}
+	
+	class IOItem
+	{
+		public string Name;
+		public Func<StreamReader> Open;
+	}
 
-	struct Settings
+	class Settings
 	{
 		public RegexOptions RegexOptions;
 		public string Pattern;
-		public string[] Files;
+		public List<string> Files = new List<string>();
 		public bool InvertMatch;
 		public bool SuppressErrorMessages;
 		
