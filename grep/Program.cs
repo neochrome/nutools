@@ -53,8 +53,10 @@ namespace NuTools.Grep
 				});
 				opts.In("Output control", g => {
 					g.On("line-number", 'n', "print line number with output lines").Do(() => settings.Output.LineNumbers = true);
-					g.On("with-filename", 'H', "print the filename for each match").Do(() => settings.Output.Filenames = true);
-					g.On("no-filename", 'h', "print line number with output lines").Do(() => settings.Output.Filenames = false);
+					g.On("with-filename", 'H', "print the filename for each match").Do(() => settings.Output.FileNames = true);
+					g.On("no-filename", 'h', "print line number with output lines").Do(() => settings.Output.FileNames = false);
+					g.On("files-without-match", 'L', "only print FILE names containing no match").Do(() => settings.Output.OnlyFileNames = OnlyFileNames.NonMatching);
+					g.On("files-with-matchese", 'l', "only print FILE names containing matches").Do(() => settings.Output.OnlyFileNames = OnlyFileNames.Matching);
 				});
 
 				opts.Footer = "With no FILE, or when FILE is -, read standard input.  If less than\n";
@@ -78,13 +80,14 @@ namespace NuTools.Grep
 				if(settings.Files.Any(fromStdIn))
 					inputs.Insert(0, new IOItem { Name = "(standard input)", Open = () => new StreamReader(Console.OpenStandardInput()) });
 
-				if(!settings.Output.Filenames.HasValue)
-					settings.Output.Filenames = inputs.Count > 1;
+				if(!settings.Output.FileNames.HasValue)
+					settings.Output.FileNames = inputs.Count > 1;
 
 				var anyMatch = false;
 				inputs.Each(input => {
 					using (var file = input.Open())
 					{
+						var fileHasNoMatch = true;
 						string line;
 						var lineNumber = 0;
 						while ((line = file.ReadLine()) != null)
@@ -92,13 +95,25 @@ namespace NuTools.Grep
 							lineNumber++;
 							if (regex.IsMatch(line) != settings.InvertMatch)
 							{
+								fileHasNoMatch = false;
 								anyMatch = true;
-								if (settings.Output.Filenames.Value)
-									Console.Out.Write("{0}:", input.Name);
-								if (settings.Output.LineNumbers)
-									Console.Out.Write("{0}:", lineNumber);
-								Console.Out.WriteLine(line);
+								if(settings.Output.OnlyFileNames == OnlyFileNames.No)
+								{
+									if (settings.Output.FileNames.Value)
+										Console.Out.Write("{0}:", input.Name);
+									if (settings.Output.LineNumbers)
+										Console.Out.Write("{0}:", lineNumber);
+									Console.Out.WriteLine(line);
+								}
+								else if(settings.Output.OnlyFileNames == OnlyFileNames.Matching){
+									Console.WriteLine(input.Name);
+									break;
+								}
 							}
+						}
+						if (settings.Output.OnlyFileNames == OnlyFileNames.NonMatching && fileHasNoMatch)
+						{
+							Console.WriteLine(input.Name);
 						}
 					}
 				});
@@ -121,6 +136,13 @@ namespace NuTools.Grep
 		public Func<StreamReader> Open;
 	}
 
+	enum OnlyFileNames
+	{
+		No = 0,
+		Matching,
+		NonMatching
+	}
+
 	class Settings
 	{
 		public RegexOptions RegexOptions;
@@ -133,7 +155,8 @@ namespace NuTools.Grep
 		public struct OutputSettings
 		{
 			public bool LineNumbers;
-			public bool? Filenames;
+			public bool? FileNames;
+			public OnlyFileNames OnlyFileNames;
 		}
 	}
 }
