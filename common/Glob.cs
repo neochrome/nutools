@@ -23,13 +23,16 @@ namespace NuTools.Common
 		public void Exclude(string pattern)
 		{
 			var expression = new Regex(@"^" + Regex.Replace(pattern, @"\*", match => mapWildCardToRegex[match.Value]) + @"$");
-			RemoveAll(f => expression.IsMatch(f));
+			RemoveAll(expression.IsMatch);
 		}
 
 		private void IncludeRecursive(string path, string[] segments)
 		{
-			var pattern = segments.First();
-			var otherSegments = segments.Skip(1).ToArray();
+			path = segments.TakeWhile(directorySymbols.Contains).Aggregate(path, Path.Combine);
+			
+			var patternSegments = segments.SkipWhile(directorySymbols.Contains).ToArray();
+			var pattern = patternSegments.First();
+			var otherSegments = patternSegments.Skip(1).ToArray();
 			if (otherSegments.Any())
 			{
 				Directory
@@ -41,12 +44,13 @@ namespace NuTools.Common
 				var files =
 					Directory
 					.GetFiles(path, pattern)
-					.Select(f => f.Replace(rootPath, string.Empty).TrimStart('/', '\\'));
+					.Select(f => f.Replace(rootPath, string.Empty).TrimStart(pathDelimiters));
 				AddRange(files);
 			}
 		}
 
 		private readonly string rootPath;
+		private static readonly string[] directorySymbols = new [] { ".", ".." };
 		private static readonly char[] pathDelimiters = new [] { '/', '\\' };
 		private static readonly Dictionary<string, string> mapWildCardToRegex = new Dictionary<string, string> { { "*", @".*" } };
 	}
