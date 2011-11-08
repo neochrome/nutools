@@ -4,21 +4,13 @@ namespace NuTools.Df
 {
 	public class Drive : IDrive
 	{
-        public Drive()
+        private Drive()
         {
             Letter = "n/a";
             Format = "n/a";
             Size = 0;
             Free = 0;
         }
-
-		public Drive(string letter, string format, long size, long free) : this()
-		{
-			Letter = letter;
-			Format = format;
-			Size = size;
-			Free = free;
-		}
 
 		public static IDrive LoadFrom(DriveInfo info)
 		{

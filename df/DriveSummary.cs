@@ -24,32 +24,6 @@ namespace NuTools.Df
                 column = new FormatDefinitions();
             }
 
-            public string CreateHeader()
-            {
-                var result = new StringBuilder();
-                const char space = ' ';
-                result.Append(header.Letter); result.Append(space);
-                result.Append(header.Type);   result.Append(space);
-                result.Append(header.Size);   result.Append(space);
-                result.Append(header.Used);   result.Append(space);
-                result.Append(header.Free);   result.Append(space);
-                result.Append(header.Percent);
-                return result.ToString();
-            }
-
-            public string CreateColumn()
-            {
-                var result = new StringBuilder();
-                const char space = ' ';
-                result.Append(column.Letter); result.Append(space);
-                result.Append(column.Type);   result.Append(space);
-                result.Append(column.Size);   result.Append(space);
-                result.Append(column.Used);   result.Append(space);
-                result.Append(column.Free);   result.Append(space);
-                result.Append(column.Percent);
-                return result.ToString();
-            }
-
             public ColumnFormats WithHumanReadableFormat()
             {
                 header.Size = "{2,6}";
@@ -63,8 +37,40 @@ namespace NuTools.Df
                 return this;
             }
 
+            public ColumnFormats WithFileSystemType()
+            {
+                showType = true;
+
+                return this;
+            }
+
+            public string CreateHeader()
+            {
+                return BuildRowFrom(header).ToString();
+            }
+
+            public string CreateColumn()
+            {
+                return BuildRowFrom(column).ToString();
+            }
+
+            private string BuildRowFrom(FormatDefinitions input)
+            {
+                var result = new StringBuilder();
+                const char space = ' ';
+                result.Append(input.Letter); result.Append(space);
+                if (showType)
+                    result.Append(input.Type);   result.Append(space);
+                result.Append(input.Size);   result.Append(space);
+                result.Append(input.Used);   result.Append(space);
+                result.Append(input.Free);   result.Append(space);
+                result.Append(input.Percent);
+                return result.ToString();
+            }
+
             private readonly FormatDefinitions header;
             private readonly FormatDefinitions column;
+            private bool showType;
         }
         
         public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType)
@@ -75,6 +81,10 @@ namespace NuTools.Df
             {
                 columnFormats = columnFormats.WithHumanReadableFormat();
                 formatProvider = new FileSizeFormatProvider();
+            }
+            if (printFileSystemType)
+            {
+                columnFormats = columnFormats.WithFileSystemType();
             }
 
             headerFormatDefinition = columnFormats.CreateHeader();
