@@ -73,6 +73,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FixedWithFormatProvider.cs" />
     <Compile Include="Glob.cs" />
+    <Compile Include="Inputs.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="OptionBase.cs" />
     <Compile Include="OptionGroup.cs" />

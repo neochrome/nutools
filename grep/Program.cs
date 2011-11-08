@@ -1,8 +1,6 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 
 using NuTools.Common;
@@ -16,7 +14,6 @@ namespace NuTools.Grep
 	{
 		public static void Main(string[] args)
 		{
-			Func<string, bool> fromStdIn = f => f == "-";
 			var settings = new Settings();
 			try
 			{
@@ -26,11 +23,7 @@ namespace NuTools.Grep
 				opts.Header += "Example: grep -i 'hello world' menu.h main.c";
 
 				opts.Required.Arg<string>("PATTERN", "").Do(pattern => settings.Pattern = pattern);
-				opts.Args<string>("FILE", "").Do(files => {
-					if(files.Count(fromStdIn) > 1)
-						throw new ArgumentException("Only one read from stdin (-) allowed.", "FILE");
-					settings.Files.AddRange(files);
-				});
+				opts.Args<string>("FILE", "").Do(settings.Files.AddRange);
 
 				opts.In("Regexp selection and interpretation", g =>
 				{
@@ -73,49 +66,42 @@ namespace NuTools.Grep
 
 				#region Grepping
 				var regex = new Regex(settings.Pattern, settings.RegexOptions);
-				var fileNames = new Glob(Environment.CurrentDirectory);
 
-				settings.Files.Except(settings.Files.Where(fromStdIn)).Each(fileNames.Include);
-				var inputs = fileNames.Select(f => new IOItem{ Name = f, Open = () => File.OpenText(f) }).ToList();
-				if(settings.Files.Any(fromStdIn))
-					inputs.Insert(0, new IOItem { Name = "(standard input)", Open = () => new StreamReader(Console.OpenStandardInput()) });
-
+				var inputs = new Inputs(settings.Files);
 				if(!settings.Output.FileNames.HasValue)
-					settings.Output.FileNames = inputs.Count > 1;
+					settings.Output.FileNames = inputs.Any;
 
 				var anyMatch = false;
-				inputs.Each(input => {
-					using (var file = input.Open())
+				inputs.Process((name, file) => {
+					var fileHasNoMatch = true;
+					string line;
+					var lineNumber = 0;
+					while ((line = file.ReadLine()) != null)
 					{
-						var fileHasNoMatch = true;
-						string line;
-						var lineNumber = 0;
-						while ((line = file.ReadLine()) != null)
+						lineNumber++;
+						if (regex.IsMatch(line) != settings.InvertMatch)
 						{
-							lineNumber++;
-							if (regex.IsMatch(line) != settings.InvertMatch)
+							fileHasNoMatch = false;
+							anyMatch = true;
+							if(settings.Output.OnlyFileNames == OnlyFileNames.No)
 							{
-								fileHasNoMatch = false;
-								anyMatch = true;
-								if(settings.Output.OnlyFileNames == OnlyFileNames.No)
-								{
-									if (settings.Output.FileNames.Value)
-										Console.Out.Write("{0}:", input.Name);
-									if (settings.Output.LineNumbers)
-										Console.Out.Write("{0}:", lineNumber);
-									Console.Out.WriteLine(line);
-								}
-								else if(settings.Output.OnlyFileNames == OnlyFileNames.Matching){
-									Console.WriteLine(input.Name);
-									break;
-								}
+								if (settings.Output.FileNames.Value)
+									Console.Out.Write("{0}:", name);
+								if (settings.Output.LineNumbers)
+									Console.Out.Write("{0}:", lineNumber);
+								Console.Out.WriteLine(line);
+							}
+							else if(settings.Output.OnlyFileNames == OnlyFileNames.Matching){
+								Console.WriteLine(name);
+								break;
 							}
 						}
-						if (settings.Output.OnlyFileNames == OnlyFileNames.NonMatching && fileHasNoMatch)
-						{
-							Console.WriteLine(input.Name);
-						}
 					}
+					if (settings.Output.OnlyFileNames == OnlyFileNames.NonMatching && fileHasNoMatch)
+					{
+						Console.WriteLine(name);
+					}
+					return true;
 				});
 				#endregion
 
@@ -128,12 +114,6 @@ namespace NuTools.Grep
 				Environment.Exit(2);
 			}
 		}
-	}
-	
-	class IOItem
-	{
-		public string Name;
-		public Func<StreamReader> Open;
 	}
 
 	enum OnlyFileNames
