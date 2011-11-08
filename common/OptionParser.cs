@@ -100,7 +100,7 @@ namespace NuTools.Common
 			var anyShortOptions = AllOptions.OfType<Option>().Any(o => o.ShortNameForUsage.Length > 0);
 			var maxOptionNameLength = AllOptions.OfType<Option>().Max(o => o.NameForUsage.Length);
 
-			var formatter = new FixedWithFormatProvider();
+			var formatter = new FixedWidthFormatProvider();
 			Action<Option> writeOption = o => {
 				output.Write("  ");
 				if (anyShortOptions)

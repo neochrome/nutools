@@ -2,7 +2,7 @@ using System;
 
 namespace NuTools.Common
 {
-	public class FixedWithFormatProvider : IFormatProvider, ICustomFormatter
+	public class FixedWidthFormatProvider : IFormatProvider, ICustomFormatter
 	{
 		public object GetFormat(Type formatType)
 		{
