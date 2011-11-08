@@ -10,7 +10,7 @@ using NuTools.Common;
 
 namespace NuTools.Grep
 {
-	class Program
+	class Grep
 	{
 		public static void Main(string[] args)
 		{
@@ -49,7 +49,7 @@ namespace NuTools.Grep
 					g.On("with-filename", 'H', "print the filename for each match").Do(() => settings.Output.FileNames = true);
 					g.On("no-filename", 'h', "print line number with output lines").Do(() => settings.Output.FileNames = false);
 					g.On("files-without-match", 'L', "only print FILE names containing no match").Do(() => settings.Output.OnlyFileNames = OnlyFileNames.NonMatching);
-					g.On("files-with-matchese", 'l', "only print FILE names containing matches").Do(() => settings.Output.OnlyFileNames = OnlyFileNames.Matching);
+					g.On("files-with-matches", 'l', "only print FILE names containing matches").Do(() => settings.Output.OnlyFileNames = OnlyFileNames.Matching);
 				});
 
 				opts.Footer = "With no FILE, or when FILE is -, read standard input.  If less than\n";

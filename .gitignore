@@ -2,5 +2,7 @@ bin
 obj
 *.suo
 *.csproj.user
+*.userprefs
+*.pidb
 *.resharper*
 _ReSharper*
