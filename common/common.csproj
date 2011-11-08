@@ -71,7 +71,7 @@
     </Compile>
     <Compile Include="Argument.cs" />
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="FixedWithFormatProvider.cs" />
+    <Compile Include="FixedWidthFormatProvider.cs" />
     <Compile Include="Glob.cs" />
     <Compile Include="Inputs.cs" />
     <Compile Include="Option.cs" />
