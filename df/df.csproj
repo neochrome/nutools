@@ -68,7 +68,6 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Drive.cs" />
-    <Compile Include="DriveRepository.cs" />
     <Compile Include="DriveSummary.cs" />
     <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="IDrive.cs" />

@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+
 using NuTools.Common;
 
 [assembly: AssemblyTitle("df")]
@@ -11,7 +14,8 @@ namespace NuTools.Df
 	{
 		public static int Main(string[] args)
 		{
-			var humanReadable = false;
+		    var humanReadable = false;
+		    var printFileSystemType = false;
 
 			var opts = new OptionParser();
 			opts.Header = "Show information about the file system on which each FILE resides,\nor all file systems by deafult.";
@@ -20,26 +24,35 @@ namespace NuTools.Df
 				Environment.Exit(0);
 			});
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
-			opts.On("version", 'V', "print version information and exit").Do(() =>
+		    opts.On("print-type", 'T', "print file system type").Do(() => printFileSystemType = true);
+            opts.On("version", 'V', "print version information and exit").Do(() =>
 			{
 				opts.WriteVersionInfo(Console.Out);
 				Environment.Exit(0);
 			});
 			opts.Parse(args);
 
-			var driveRepository = new DriveRepository();
-			var driveSummary = CreateDriveSummary(driveRepository, humanReadable);
-
+		    var driveSummary = new DriveSummary(GetDrives(), humanReadable, printFileSystemType);
 			Console.Write(driveSummary.Render());
 
 			return 0;
 		}
 
-		private static DriveSummary CreateDriveSummary(DriveRepository driveRepository, bool humanReadable)
-		{
-			return humanReadable
-				? new DriveSummary(driveRepository.GetDrives(), new FileSizeFormatProvider())
-				: new DriveSummary(driveRepository.GetDrives());
-		}
+        private static IEnumerable<IDrive> GetDrives()
+        {
+            var drives = new List<IDrive>();
+
+            foreach (var info in DriveInfo.GetDrives())
+            {
+                var drive = Drive.LoadFrom(info);
+                if (drive is NotSupportedDrive)
+                    continue;
+
+                drives.Add(Drive.LoadFrom(info));
+            }
+
+            return drives;
+        }
+
 	}
 }
