@@ -10,7 +10,7 @@ using NuTools.Common;
 
 namespace NuTools.Df
 {
-	class Program
+	class Df
 	{
 	    public static int Main(string[] args)
 		{

@@ -72,7 +72,7 @@
     <Compile Include="FileSizeFormatProvider.cs" />
     <Compile Include="IDrive.cs" />
     <Compile Include="NotSupportedDrive.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Df.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="man.txt" />
