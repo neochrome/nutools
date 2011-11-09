@@ -16,6 +16,7 @@ namespace NuTools.Df
 		{
 		    var humanReadable = false;
 		    var printFileSystemType = false;
+            var limitToType = "";
 
 			var opts = new OptionParser();
 			opts.Header = "Show information about the file system on which each FILE resides,\nor all file systems by deafult.";
@@ -25,27 +26,38 @@ namespace NuTools.Df
 			});
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
 		    opts.On("print-type", 'T', "print file system type").Do(() => printFileSystemType = true);
+            opts.On("type", 't', "limit listing to file systems of type TYPE").WithArg<string>("TYPE").Do(arg => limitToType = arg);
             opts.On("version", 'V', "print version information and exit").Do(() =>
 			{
 				opts.WriteVersionInfo(Console.Out);
 				Environment.Exit(0);
 			});
-			opts.Parse(args);
+			
+            if (!opts.Parse(args))
+            {
+                Console.WriteLine("One or more arguments are invalid.");
+                opts.WriteUsage(Console.Out);
+                Environment.Exit(1);
+            }
 
-		    var driveSummary = new DriveSummary(GetDrives(), humanReadable, printFileSystemType);
-			Console.Write(driveSummary.Render());
+		    var drivesToEnumerate = GetDrives(limitToType);
+		    var driveSummary = new DriveSummary(drivesToEnumerate, humanReadable, printFileSystemType);
+            Console.Write(driveSummary.Render());
 
 			return 0;
 		}
 
-        private static IEnumerable<IDrive> GetDrives()
+        private static IEnumerable<IDrive> GetDrives(string limitToType)
         {
             var drives = new List<IDrive>();
 
             foreach (var info in DriveInfo.GetDrives())
             {
                 var drive = Drive.LoadFrom(info);
+
                 if (drive is NotSupportedDrive)
+                    continue;
+                if (!string.IsNullOrEmpty(limitToType) && drive.Format.ToLower() != limitToType.ToLower())
                     continue;
 
                 drives.Add(Drive.LoadFrom(info));
