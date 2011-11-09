@@ -37,7 +37,6 @@ namespace NuTools.Common
 
 		public virtual string NameForUsage { get { return string.IsNullOrEmpty(Name) ? "" : "--" + Name; } }
 		public virtual string ShortNameForUsage { get { return string.IsNullOrEmpty(ShortName) ? "" : "-" + ShortName; } }
-		public virtual string DescriptionForUsage { get { return Description; } }
 
 		private Action action = () => { };
 	}

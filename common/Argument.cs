@@ -19,6 +19,8 @@ namespace NuTools.Common
 		}
 
 		public abstract bool SupportsMultipleValues { get; }
+		
+		public override string DescriptionForUsage { get { return string.IsNullOrEmpty(Description) ? "" : string.Format(Description, Name); } }
 	}
 
 	public class Argument<T> : Argument, IArg<T>

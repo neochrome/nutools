@@ -101,7 +101,6 @@ namespace NuTools.Grep
 					{
 						Console.WriteLine(name);
 					}
-					return true;
 				});
 				#endregion
 

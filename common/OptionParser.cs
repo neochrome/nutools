@@ -112,6 +112,16 @@ namespace NuTools.Common
 				output.WriteLine(string.Format(formatter, " {0:" + maxOptionNameLength + "} {1}", o.NameForUsage, o.DescriptionForUsage));
 			};
 
+			var describedArguments = AllOptions
+				.OfType<Argument>()
+				.Where(a => a.DescriptionForUsage.Length > 0)
+				.Select(a => a.DescriptionForUsage);
+			if (describedArguments.Any())
+			{
+				output.WriteLine();
+				describedArguments.Each(output.WriteLine);
+			}
+			
 			if (Options.OfType<Option>().Any())
 			{
 				output.WriteLine();

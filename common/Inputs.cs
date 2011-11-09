@@ -20,6 +20,11 @@ namespace NuTools.Common
 
 		public bool Any { get { return inputs.Count > 1; } }
 
+		public void Process(Action<string, StreamReader> process)
+		{
+			Process((name, reader) => { process(name, reader); return true; });
+		}
+		
 		public void Process(Func<string, StreamReader, bool> process)
 		{
 			foreach (var input in inputs)
