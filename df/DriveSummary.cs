@@ -77,8 +77,11 @@ namespace NuTools.Df
 		{
             this.drives = drives;
             var columnFormats = new ColumnFormats();
+            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Avail", "Use" };
+
             if (humanReadable)
             {
+                columnNames[2] = "Size";
                 columnFormats = columnFormats.WithHumanReadableFormat();
                 formatProvider = new FileSizeFormatProvider();
             }
@@ -89,18 +92,18 @@ namespace NuTools.Df
 
             headerFormatDefinition = columnFormats.CreateHeader();
             formatDefinition = columnFormats.CreateColumn();
-			columnType = drive => {
-				return string.Format(
-                    formatProvider,
-					formatDefinition,
-					drive.Letter,
-					drive.Format,
-					drive.Size,
-					drive.Used,
-					drive.Free,
-					PercentUsedOf(drive)
-				);
-			};
+            var oneKilobyte = 1024;
+			columnType = drive =>
+                string.Format(
+			        formatProvider,
+			        formatDefinition,
+			        drive.Letter,
+			        drive.Format,
+			        drive.Size / oneKilobyte,
+			        drive.Used / oneKilobyte,
+			        drive.Free / oneKilobyte,
+			        PercentUsedOf(drive)
+                );
 		    this.printFileSystemType = printFileSystemType;
 		}
 
@@ -111,8 +114,7 @@ namespace NuTools.Df
             headerFormatDefinition = columnFormats.CreateColumn();
 		    formatDefinition = columnFormats.CreateColumn();
             columnType = drive =>
-            {
-				return string.Format(formatProvider, formatDefinition,
+                string.Format(formatProvider, formatDefinition,
 					drive.Letter,
 					drive.Format,
 					drive.Size,
@@ -120,7 +122,6 @@ namespace NuTools.Df
 					drive.Free,
 					PercentUsedOf(drive)
 				);
-			};
 
 		    return;
 		}
@@ -128,8 +129,7 @@ namespace NuTools.Df
 		public string Render()
 		{
 			var summary = new StringBuilder();
-            string[] names = { "Drive", "Type", "Size", "Used", "Avail", "Use" };
-		    summary.AppendLine(string.Format(headerFormatDefinition, names));
+		    summary.AppendLine(string.Format(headerFormatDefinition, columnNames));
 			foreach (var drive in drives)
 				summary.AppendLine(columnType(drive));
 			return summary.ToString();
@@ -146,5 +146,6 @@ namespace NuTools.Df
 		private string headerFormatDefinition;
 	    private bool printFileSystemType;
 	    private FileSizeFormatProvider formatProvider;
+	    private string[] columnNames;
 	}
 }
