@@ -20,9 +20,9 @@ namespace NuTools.Grep
 				#region Option parsing
 				var opts = new OptionParser();
 				opts.Header = "Search for PATTERN in each FILE or standard input.\n";
-				opts.Header += "Example: grep -i 'hello world' menu.h main.c";
+				opts.Header += "Example: grep -i \"hello world\" menu.h main.c";
 
-				opts.Required.Arg<string>("PATTERN", "").Do(pattern => settings.Pattern = pattern);
+				opts.Required.Arg<string>("PATTERN", "{0} is a .NET/Mono Regular Expression string.").Do(pattern => settings.Pattern = pattern);
 				opts.Args<string>("FILE", "").Do(settings.Files.AddRange);
 
 				opts.In("Regexp selection and interpretation", g =>
