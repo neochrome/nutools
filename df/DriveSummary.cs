@@ -6,11 +6,12 @@ namespace NuTools.Df
 {
 	public class DriveSummary
 	{
-        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType)
+        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType, bool usePosixFormat)
 		{
             this.drives = drives;
             this.humanReadable = humanReadable;
             this.printFileSystemType = printFileSystemType;
+            this.usePosixFormat = usePosixFormat;
             columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
 		}
 
@@ -26,6 +27,13 @@ namespace NuTools.Df
                 formatProvider = new FileSizeFormatProvider();
                 columnNames[2] = "Size";
                 columnNames[4] = "Avail";
+            }
+
+            if (usePosixFormat)
+            {
+                columnFormats.WithPosixFormat();
+                columnNames[2] = "1024-blocks";
+                columnNames[5] = "Capacity";
             }
 
             if (printFileSystemType)
@@ -63,7 +71,7 @@ namespace NuTools.Df
         {
             private class FormatDefinitions
             {
-                public string Letter  = "{0,-10}";
+                public string Letter  = "{0,-11}";
                 public string Type    = "{1,-5}";
                 public string Size    = "{2,9}";
                 public string Used    = "{3,9}";
@@ -86,6 +94,20 @@ namespace NuTools.Df
                 column.Size = "{2,6:fs}";
                 column.Used = "{3,6:fs}";
                 column.Free = "{4,6:fs}";
+            }
+
+            public void WithPosixFormat()
+            {
+                header.Size = "{2,11}";
+
+                var values = column.Size.TrimStart('{').TrimEnd('}').Split(',');
+                var index = values[0];
+                var padding = values[1];
+                var modifiedPadding = padding.Contains(":fs") ? "11:fs" : "11";
+                column.Size = "{" + index + "," + modifiedPadding + "}";
+
+                header.Percent = "{5,8}";
+                column.Percent = "{5,7}%";
             }
 
             public void WithFileSystemType()
@@ -116,8 +138,8 @@ namespace NuTools.Df
                 return result.ToString();
             }
 
-            private readonly FormatDefinitions header;
-            private readonly FormatDefinitions column;
+            private FormatDefinitions header;
+            private FormatDefinitions column;
             private bool showType;
         }
 
@@ -128,5 +150,6 @@ namespace NuTools.Df
 	    private readonly string[] columnNames;
 	    private readonly bool humanReadable;
 	    private readonly bool printFileSystemType;
+	    private readonly bool usePosixFormat;
 	}
 }
