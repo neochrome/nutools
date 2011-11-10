@@ -27,7 +27,8 @@ namespace NuTools.Common
 
 		public override void Tell()
 		{
-			action(receivedValue);
+			if (Parsed)
+                action(receivedValue);
 		}
 
 		public override string NameForUsage { get { return base.NameForUsage + "=" + ArgumentName; } }

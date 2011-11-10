@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 using NuTools.Common;
@@ -12,8 +13,8 @@ namespace NuTools.Df
 {
 	class Df
 	{
-	    public static int Main(string[] args)
-		{
+        public static int Main(string[] args)
+        {
 		    var humanReadable = false;
 		    var printFileSystemType = false;
             var limitToType = "";
@@ -25,9 +26,9 @@ namespace NuTools.Df
             opts.Args<string>("FILE", "").Do(files => { });
 
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
-            opts.On("type", 't', "limit listing to file systems of type TYPE").WithArg<string>("TYPE").Do(arg => limitToType = arg);
+            opts.On("type", 't', "limit listing to file systems of type TYPE").WithArg<string>("TYPE").Do(arg => limitToType = arg );
             opts.On("print-type", 'T', "print file system type").Do(() => printFileSystemType = true);
-            opts.On("exclude-type", 'x', "limit listing to file systems not of type TYPE").WithArg<string>("TYPE").Do(arg => excludeType = arg);
+            opts.On("exclude-type", 'x', "limit listing to file systems not of type TYPE").WithArg<string>("TYPE").Do(arg => excludeType = arg );
 
             opts.On("help", "display this help text and exit").Do(() =>
             {
@@ -50,7 +51,7 @@ namespace NuTools.Df
             if (!opts.Parse(args))
             {
                 Console.WriteLine("One or more arguments are invalid.");
-                opts.WriteUsage(Console.Out);
+                opts.WriteUsage(Console.Error);
                 Environment.Exit(1);
             }
 
@@ -71,8 +72,10 @@ namespace NuTools.Df
 
                 if (drive is NotSupportedDrive)
                     continue;
+
                 if (!string.IsNullOrEmpty(limitToType) && drive.Format.ToLower() != limitToType.ToLower())
                     continue;
+
                 if (!string.IsNullOrEmpty(excludeType) && drive.Format.ToLower() == excludeType.ToLower())
                     continue;
 
