@@ -6,6 +6,59 @@ namespace NuTools.Df
 {
 	public class DriveSummary
 	{
+        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType)
+		{
+            this.drives = drives;
+            this.humanReadable = humanReadable;
+            this.printFileSystemType = printFileSystemType;
+            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
+		}
+
+	    public string Render()
+		{
+            var sizeModifier = 1024;
+            var columnFormats = new ColumnFormats();
+
+            if (humanReadable)
+            {
+                sizeModifier = 1;
+                columnFormats.WithHumanReadableFormat();
+                formatProvider = new FileSizeFormatProvider();
+                columnNames[2] = "Size";
+                columnNames[4] = "Avail";
+            }
+
+            if (printFileSystemType)
+                columnFormats.WithFileSystemType();
+
+            headerFormatDefinition = columnFormats.CreateHeader();
+            formatDefinition = columnFormats.CreateColumn();
+
+			var summary = new StringBuilder();
+		    summary.AppendLine(string.Format(headerFormatDefinition, columnNames));
+			foreach (var drive in drives)
+            {
+                var row = string.Format(
+			        formatProvider,
+			        formatDefinition,
+			        drive.Letter,
+			        drive.Format,
+			        drive.Size / sizeModifier,
+			        drive.Used / sizeModifier,
+			        drive.Free / sizeModifier,
+			        PercentUsedOf(drive)
+                );
+
+				summary.AppendLine(row);
+            }
+			return summary.ToString();
+		}
+
+		private int PercentUsedOf(IDrive drive)
+		{
+			return (drive.Size <= 0 || drive.Used <= 0) ? 0 : (int)Math.Round((drive.Used / (float)drive.Size) * 100);
+		}
+
         private class ColumnFormats
         {
             private class FormatDefinitions
@@ -24,7 +77,7 @@ namespace NuTools.Df
                 column = new FormatDefinitions();
             }
 
-            public ColumnFormats WithHumanReadableFormat()
+            public void WithHumanReadableFormat()
             {
                 header.Size = "{2,6}";
                 header.Used = "{3,6}";
@@ -33,14 +86,11 @@ namespace NuTools.Df
                 column.Size = "{2,6:fs}";
                 column.Used = "{3,6:fs}";
                 column.Free = "{4,6:fs}";
-
-                return this;
             }
 
-            public ColumnFormats WithFileSystemType()
+            public void WithFileSystemType()
             {
                 showType = true;
-                return this;
             }
 
             public string CreateHeader()
@@ -58,7 +108,7 @@ namespace NuTools.Df
                 var result = new StringBuilder();
                 const string space = "  ";
                 result.Append(input.Letter); result.Append(space);
-                if (showType) result.Append(input.Type);   result.Append(space);
+                if (showType) result.Append(input.Type); result.Append(space);
                 result.Append(input.Size);   result.Append(space);
                 result.Append(input.Used);   result.Append(space);
                 result.Append(input.Free);   result.Append(space);
@@ -70,60 +120,13 @@ namespace NuTools.Df
             private readonly FormatDefinitions column;
             private bool showType;
         }
-        
-        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType)
-		{
-            this.drives = drives;
-            var sizeModifier = 1024;
-            var columnFormats = new ColumnFormats();
-            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
 
-            if (humanReadable)
-            {
-                sizeModifier = 1;
-                columnFormats = columnFormats.WithHumanReadableFormat();
-                formatProvider = new FileSizeFormatProvider();
-                columnNames[2] = "Size";
-                columnNames[4] = "Avail";
-            }
-
-            if (printFileSystemType)
-                columnFormats = columnFormats.WithFileSystemType();
-
-            headerFormatDefinition = columnFormats.CreateHeader();
-            formatDefinition = columnFormats.CreateColumn();
-			columnType = drive =>
-                string.Format(
-			        formatProvider,
-			        formatDefinition,
-			        drive.Letter,
-			        drive.Format,
-			        drive.Size / sizeModifier,
-			        drive.Used / sizeModifier,
-			        drive.Free / sizeModifier,
-			        PercentUsedOf(drive)
-                );
-		}
-
-	    public string Render()
-		{
-			var summary = new StringBuilder();
-		    summary.AppendLine(string.Format(headerFormatDefinition, columnNames));
-			foreach (var drive in drives)
-				summary.AppendLine(columnType(drive));
-			return summary.ToString();
-		}
-
-		private int PercentUsedOf(IDrive drive)
-		{
-			return (drive.Size <= 0 || drive.Used <= 0) ? 0 : (int)Math.Round((drive.Used / (float)drive.Size) * 100);
-		}
-
-		private readonly Func<IDrive, string> columnType;
 		private readonly IEnumerable<IDrive> drives;
-	    private readonly string formatDefinition;
-		private readonly string headerFormatDefinition;
-	    private readonly FileSizeFormatProvider formatProvider;
+	    private FileSizeFormatProvider formatProvider;
+	    private string formatDefinition;
+		private string headerFormatDefinition;
 	    private readonly string[] columnNames;
+	    private readonly bool humanReadable;
+	    private readonly bool printFileSystemType;
 	}
 }
