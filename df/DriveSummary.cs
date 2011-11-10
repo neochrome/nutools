@@ -10,11 +10,11 @@ namespace NuTools.Df
         {
             private class FormatDefinitions
             {
-                public string Letter  = "{0,-5}";
+                public string Letter  = "{0,-10}";
                 public string Type    = "{1,-5}";
-                public string Size    = "{2,14}";
-                public string Used    = "{3,14}";
-                public string Free    = "{4,14}";
+                public string Size    = "{2,9}";
+                public string Used    = "{3,9}";
+                public string Free    = "{4,9}";
                 public string Percent = "{5,4}%";
             }
             
@@ -40,27 +40,25 @@ namespace NuTools.Df
             public ColumnFormats WithFileSystemType()
             {
                 showType = true;
-
                 return this;
             }
 
             public string CreateHeader()
             {
-                return BuildRowFrom(header).ToString();
+                return BuildRowFrom(header);
             }
 
             public string CreateColumn()
             {
-                return BuildRowFrom(column).ToString();
+                return BuildRowFrom(column);
             }
 
             private string BuildRowFrom(FormatDefinitions input)
             {
                 var result = new StringBuilder();
-                const char space = ' ';
+                const string space = "  ";
                 result.Append(input.Letter); result.Append(space);
-                if (showType)
-                    result.Append(input.Type);   result.Append(space);
+                if (showType) result.Append(input.Type);   result.Append(space);
                 result.Append(input.Size);   result.Append(space);
                 result.Append(input.Used);   result.Append(space);
                 result.Append(input.Free);   result.Append(space);
@@ -78,7 +76,7 @@ namespace NuTools.Df
             this.drives = drives;
             var sizeModifier = 1024;
             var columnFormats = new ColumnFormats();
-            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Avail", "Use" };
+            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
 
             if (humanReadable)
             {
@@ -86,6 +84,7 @@ namespace NuTools.Df
                 columnFormats = columnFormats.WithHumanReadableFormat();
                 formatProvider = new FileSizeFormatProvider();
                 columnNames[2] = "Size";
+                columnNames[4] = "Avail";
             }
 
             if (printFileSystemType)
@@ -104,7 +103,6 @@ namespace NuTools.Df
 			        drive.Free / sizeModifier,
 			        PercentUsedOf(drive)
                 );
-		    this.printFileSystemType = printFileSystemType;
 		}
 
 	    public string Render()
@@ -125,7 +123,6 @@ namespace NuTools.Df
 		private readonly IEnumerable<IDrive> drives;
 	    private readonly string formatDefinition;
 		private readonly string headerFormatDefinition;
-	    private bool printFileSystemType;
 	    private readonly FileSizeFormatProvider formatProvider;
 	    private readonly string[] columnNames;
 	}
