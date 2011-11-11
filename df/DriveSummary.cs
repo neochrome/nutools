@@ -6,12 +6,12 @@ namespace NuTools.Df
 {
 	public class DriveSummary
 	{
-        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool printFileSystemType, bool usePosixFormat)
+        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool posixFormat, bool printFileSystemType)
 		{
             this.drives = drives;
             this.humanReadable = humanReadable;
+            this.posixFormat = posixFormat;
             this.printFileSystemType = printFileSystemType;
-            this.usePosixFormat = usePosixFormat;
             columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
 		}
 
@@ -29,7 +29,7 @@ namespace NuTools.Df
                 columnNames[4] = "Avail";
             }
 
-            if (usePosixFormat)
+            if (posixFormat)
             {
                 columnFormats.WithPosixFormat();
                 columnNames[2] = "1024-blocks";
@@ -150,6 +150,6 @@ namespace NuTools.Df
 	    private readonly string[] columnNames;
 	    private readonly bool humanReadable;
 	    private readonly bool printFileSystemType;
-	    private readonly bool usePosixFormat;
+	    private readonly bool posixFormat;
 	}
 }
