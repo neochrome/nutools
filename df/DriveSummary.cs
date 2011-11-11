@@ -6,27 +6,30 @@ namespace NuTools.Df
 {
 	public class DriveSummary
 	{
-        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool posixFormat, bool printFileSystemType)
+        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool humanReadableWithSi, bool posixFormat, bool printFileSystemType)
 		{
             this.drives = drives;
             this.humanReadable = humanReadable;
+            this.humanReadableWithSi = humanReadableWithSi;
             this.posixFormat = posixFormat;
             this.printFileSystemType = printFileSystemType;
+            sizeModifier = 1024;
             columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
 		}
 
 	    public string Render()
 		{
-            var sizeModifier = 1024;
             var columnFormats = new ColumnFormats();
+
+            if (humanReadableWithSi)
+            {
+                ModifyForHumanReadableOutput(columnFormats);
+                sizeModifier = 1000;
+            }
 
             if (humanReadable)
             {
-                sizeModifier = 1;
-                columnFormats.WithHumanReadableFormat();
-                formatProvider = new FileSizeFormatProvider();
-                columnNames[2] = "Size";
-                columnNames[4] = "Avail";
+                ModifyForHumanReadableOutput(columnFormats);
             }
 
             if (posixFormat)
@@ -62,7 +65,16 @@ namespace NuTools.Df
 			return summary.ToString();
 		}
 
-		private int PercentUsedOf(IDrive drive)
+	    private void ModifyForHumanReadableOutput(ColumnFormats columnFormats)
+	    {
+	        sizeModifier = 1;
+	        columnFormats.WithHumanReadableFormat();
+	        formatProvider = new FileSizeFormatProvider();
+	        columnNames[2] = "Size";
+	        columnNames[4] = "Avail";
+	    }
+
+	    private int PercentUsedOf(IDrive drive)
 		{
 			return (drive.Size <= 0 || drive.Used <= 0) ? 0 : (int)Math.Round((drive.Used / (float)drive.Size) * 100);
 		}
@@ -147,9 +159,11 @@ namespace NuTools.Df
 	    private FileSizeFormatProvider formatProvider;
 	    private string formatDefinition;
 		private string headerFormatDefinition;
-	    private readonly string[] columnNames;
-	    private readonly bool humanReadable;
-	    private readonly bool printFileSystemType;
-	    private readonly bool posixFormat;
+	    private string[] columnNames;
+	    private bool humanReadable;
+	    private bool humanReadableWithSi;
+	    private bool printFileSystemType;
+	    private bool posixFormat;
+        private int sizeModifier;
 	}
 }

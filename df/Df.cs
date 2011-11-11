@@ -15,6 +15,7 @@ namespace NuTools.Df
 	    public static int Main(string[] args)
         {
 		    var humanReadable = false;
+		    var humanReadableWithSi = false;
 		    var printFileSystemType = false;
             var limitToType = "";
     	    var excludeType = "";
@@ -26,6 +27,7 @@ namespace NuTools.Df
             opts.Args<string>("FILE", "").Do(files => { });
 
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
+			opts.On("si", 'H', "likewise, but use powers of 1000 not 1024").Do(() => humanReadableWithSi = true);
             opts.On("portability", 'P', "use the POSIX output format").Do(() => posixFormat = true);
             opts.On("type", 't', "limit listing to file systems of type TYPE").WithArg<string>("TYPE").Do(arg => limitToType = arg );
             opts.On("print-type", 'T', "print file system type").Do(() => printFileSystemType = true);
@@ -57,7 +59,7 @@ namespace NuTools.Df
             }
 
 		    var drivesToEnumerate = GetDrives(limitToType, excludeType);
-		    var driveSummary = new DriveSummary(drivesToEnumerate, humanReadable, posixFormat, printFileSystemType);
+		    var driveSummary = new DriveSummary(drivesToEnumerate, humanReadable, humanReadableWithSi, posixFormat, printFileSystemType);
             Console.Write(driveSummary.Render());
 
 			return 0;
