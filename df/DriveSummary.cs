@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using NuTools.Common;
+
 namespace NuTools.Df
 {
 	public class DriveSummary
@@ -14,33 +16,38 @@ namespace NuTools.Df
             this.posixFormat = posixFormat;
             this.printFileSystemType = printFileSystemType;
             sizeModifier = 1024;
-            columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
-		}
+            optionActions = new List<Action>();
+        }
 
 	    public string Render()
 		{
+            var columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
             var columnFormats = new ColumnFormats();
 
             if (humanReadableWithSi)
             {
-                ModifyForHumanReadableOutput(columnFormats);
-                sizeModifier = 1000;
+                optionActions.Add(() => ModifyForHumanReadableOutput(columnFormats, columnNames));
+                optionActions.Add(() => sizeModifier = 1000);
             }
 
-            if (humanReadable)
+            if (!humanReadableWithSi && humanReadable)
             {
-                ModifyForHumanReadableOutput(columnFormats);
+                optionActions.Add(() => ModifyForHumanReadableOutput(columnFormats, columnNames));
             }
 
             if (posixFormat)
             {
-                columnFormats.WithPosixFormat();
-                columnNames[2] = "1024-blocks";
-                columnNames[5] = "Capacity";
+                optionActions.Add(() => {
+                    columnFormats.WithPosixFormat();
+                    columnNames[2] = "1024-blocks";
+                    columnNames[5] = "Capacity";
+                });
             }
 
             if (printFileSystemType)
-                columnFormats.WithFileSystemType();
+                optionActions.Add(columnFormats.WithFileSystemType);
+
+            optionActions.Each(a => a.Invoke());
 
             headerFormatDefinition = columnFormats.CreateHeader();
             formatDefinition = columnFormats.CreateColumn();
@@ -65,7 +72,7 @@ namespace NuTools.Df
 			return summary.ToString();
 		}
 
-	    private void ModifyForHumanReadableOutput(ColumnFormats columnFormats)
+	    private void ModifyForHumanReadableOutput(ColumnFormats columnFormats, string[] columnNames)
 	    {
 	        sizeModifier = 1;
 	        columnFormats.WithHumanReadableFormat();
@@ -155,11 +162,12 @@ namespace NuTools.Df
             private bool showType;
         }
 
+        private IList<Action> optionActions;
+
 		private readonly IEnumerable<IDrive> drives;
 	    private FileSizeFormatProvider formatProvider;
 	    private string formatDefinition;
 		private string headerFormatDefinition;
-	    private string[] columnNames;
 	    private bool humanReadable;
 	    private bool humanReadableWithSi;
 	    private bool printFileSystemType;
