@@ -61,11 +61,6 @@ namespace NuTools.Common
 		public string Header = string.Empty;
 		public string Footer = string.Empty;
 
-		public string Summary()
-		{
-			return "";
-		}
-
 		public void WriteUsage(TextWriter output)
 		{
 			WriteUsageHeader(output);
@@ -78,7 +73,7 @@ namespace NuTools.Common
 			output.WriteLine(Assembly.GetEntryAssembly().FullName);
 		}
 
-		private void WriteUsageHeader(TextWriter output)
+		public void WriteUsageHeader(TextWriter output)
 		{
 			var applicationName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
 			output.Write("Usage: {0} [OPTION]...", applicationName);
@@ -89,13 +84,14 @@ namespace NuTools.Common
 					.Select(a => a.Required ? a.Name : string.Format("[{0}]", a.Name) + (a.SupportsMultipleValues ? " ..." : "") )
 					.Aggregate("", (acc, a) => acc + " " + a)
 				);
-
+			output.WriteLine();
+			
 			if (string.IsNullOrEmpty(Header)) return;
 			output.WriteLine();
 			output.WriteLine(Header);
 		}
 
-		private void WriteUsageOptions(TextWriter output)
+		public void WriteUsageOptions(TextWriter output)
 		{
 			var anyShortOptions = AllOptions.OfType<Option>().Any(o => o.ShortNameForUsage.Length > 0);
 			var maxOptionNameLength = AllOptions.OfType<Option>().Max(o => o.NameForUsage.Length);
@@ -136,7 +132,7 @@ namespace NuTools.Common
 				});
 		}
 
-		private void WriteUsageFooter(TextWriter output)
+		public void WriteUsageFooter(TextWriter output)
 		{
 			if (string.IsNullOrEmpty(Footer)) return;
 			output.WriteLine();

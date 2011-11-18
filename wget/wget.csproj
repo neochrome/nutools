@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{40ADF86A-FA42-4116-8F99-71CDE9EF946A}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{525A6E91-CD73-4882-B000-7EA07FB8ABC5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuTools.Common</RootNamespace>
-    <AssemblyName>common</AssemblyName>
+    <RootNamespace>NuTools.WGet</RootNamespace>
+    <AssemblyName>wget</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -66,17 +66,13 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Argument.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="FixedWidthFormatProvider.cs" />
-    <Compile Include="Glob.cs" />
-    <Compile Include="Inputs.cs" />
-    <Compile Include="Option.cs" />
-    <Compile Include="OptionBase.cs" />
-    <Compile Include="OptionGroup.cs" />
-    <Compile Include="OptionParser.cs" />
-    <Compile Include="OptionParserSyntax.cs" />
-    <Compile Include="OptionWithArgument.cs" />
+    <Compile Include="WGet.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.csproj">
+      <Project>{40ADF86A-FA42-4116-8F99-71CDE9EF946A}</Project>
+      <Name>common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -94,5 +90,8 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="man.txt" />
   </ItemGroup>
 </Project>
