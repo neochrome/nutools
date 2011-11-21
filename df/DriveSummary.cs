@@ -8,13 +8,15 @@ namespace NuTools.Df
 {
 	public class DriveSummary
 	{
-        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool humanReadableWithSi, bool posixFormat, bool printFileSystemType)
+        public DriveSummary(IEnumerable<IDrive> drives, bool humanReadable, bool humanReadableWithSi, bool posixFormat, bool printFileSystemType, bool customBlockSize, int blockSize)
 		{
             this.drives = drives;
             this.humanReadable = humanReadable;
             this.humanReadableWithSi = humanReadableWithSi;
             this.posixFormat = posixFormat;
             this.printFileSystemType = printFileSystemType;
+            this.customBlockSize = customBlockSize;
+            this.blockSize = blockSize;
             sizeModifier = 1024;
             optionActions = new List<Action>();
         }
@@ -24,25 +26,27 @@ namespace NuTools.Df
             var columnNames = new [] { "Drive", "Type", "1K-blocks", "Used", "Available", "Use" };
             var columnFormats = new ColumnFormats();
 
-            if (humanReadableWithSi)
-            {
-                optionActions.Add(() => ModifyForHumanReadableOutput(columnFormats, columnNames));
-                optionActions.Add(() => sizeModifier = 1000);
-            }
+            if (humanReadableWithSi && !customBlockSize)
+                optionActions.Add(() => { 
+                    ModifyForHumanReadableOutput(columnFormats, columnNames);
+                    sizeModifier = 1000;
+                });
 
-            if (!humanReadableWithSi && humanReadable)
-            {
+            if (!humanReadableWithSi && humanReadable && !customBlockSize)
                 optionActions.Add(() => ModifyForHumanReadableOutput(columnFormats, columnNames));
-            }
 
-            if (posixFormat)
-            {
+            if (posixFormat && !humanReadable)
                 optionActions.Add(() => {
                     columnFormats.WithPosixFormat();
                     columnNames[2] = "1024-blocks";
                     columnNames[5] = "Capacity";
                 });
-            }
+
+            if (customBlockSize)
+                optionActions.Add(() => {
+                    sizeModifier = blockSize;
+                    columnNames[2] = string.Format(new FileSizeFormatProvider(true), "{0:fs}-blocks", sizeModifier);
+                });
 
             if (printFileSystemType)
                 optionActions.Add(columnFormats.WithFileSystemType);
@@ -171,7 +175,9 @@ namespace NuTools.Df
 	    private bool humanReadable;
 	    private bool humanReadableWithSi;
 	    private bool printFileSystemType;
+	    private readonly bool customBlockSize;
 	    private bool posixFormat;
         private int sizeModifier;
+	    private int blockSize;
 	}
 }

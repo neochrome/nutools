@@ -5,6 +5,14 @@ namespace NuTools.Df
 {
 	public class FileSizeFormatProvider : IFormatProvider, ICustomFormatter
 	{
+	    public FileSizeFormatProvider() : this(false)
+	    { }
+
+        public FileSizeFormatProvider(bool doRounding)
+	    {
+	        this.doRounding = doRounding;
+	    }
+
 		public object GetFormat(Type formatType)
 		{
 			if (formatType == typeof(ICustomFormatter))
@@ -41,7 +49,13 @@ namespace NuTools.Df
 				suffix = "K";
 			}
 
-			var sizeString = string.Format("{0:0.0}{1}", size, suffix, CultureInfo.InvariantCulture);
+            var formatString = "{0:0.0}{1}";
+            if (doRounding)
+            {
+                formatString = "{0:0}{1}";
+                size = Math.Round(size);
+            }
+            var sizeString = string.Format(formatString, size, suffix, CultureInfo.InvariantCulture);
 			return sizeString.Replace(',', '.');
 		}
 
@@ -58,5 +72,6 @@ namespace NuTools.Df
 		private const decimal oneGigaByte = oneMegaByte * 1024M;
 		private const decimal oneTeraByte = oneGigaByte * 1024M;
 		private const string formatFlag = "fs";
+	    private readonly bool doRounding = false;
 	}
 }

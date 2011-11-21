@@ -20,12 +20,15 @@ namespace NuTools.Df
             var limitToType = "";
     	    var excludeType = "";
 	        var posixFormat = false;
+            var blockSize = 1024;
+    	    var customBlockSize = false;
 
 			var opts = new OptionParser();
 			opts.Header = "Show information about the file system on which each FILE resides,\nor all file systems by deafult.";
 
             opts.Args<string>("FILE", "").Do(files => { });
 
+            opts.On("block-size", 'B', "use SIZE-byte blocks").WithArg<int>("SIZE").Do(arg => { customBlockSize = true; blockSize = arg; });
 			opts.On("human-readable", 'h', "print sizes in human readable format (e.g., 1K 234M 2G)").Do(() => humanReadable = true);
 			opts.On("si", 'H', "likewise, but use powers of 1000 not 1024").Do(() => humanReadableWithSi = true);
             opts.On("portability", 'P', "use the POSIX output format").Do(() => posixFormat = true);
@@ -59,7 +62,7 @@ namespace NuTools.Df
             }
 
 		    var drivesToEnumerate = GetDrives(limitToType, excludeType);
-		    var driveSummary = new DriveSummary(drivesToEnumerate, humanReadable, humanReadableWithSi, posixFormat, printFileSystemType);
+		    var driveSummary = new DriveSummary(drivesToEnumerate, humanReadable, humanReadableWithSi, posixFormat, printFileSystemType, customBlockSize, blockSize);
             Console.Write(driveSummary.Render());
 
 			return 0;
