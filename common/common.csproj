@@ -77,6 +77,7 @@
     <Compile Include="OptionParser.cs" />
     <Compile Include="OptionParserSyntax.cs" />
     <Compile Include="OptionWithArgument.cs" />
+    <Compile Include="StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
