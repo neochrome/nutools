@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -20,7 +22,7 @@ namespace NuTools.WGet
 				#region Option parsing
 				var opts = new OptionParser();
 
-				opts.Required.Arg<string>("URL", "").Do(fetchUrl => {});
+				opts.Required.Arg<string>("URL", "").Do(settings.Urls.Add);
 
 				opts.In("Startup", g =>
 				{
@@ -37,21 +39,20 @@ namespace NuTools.WGet
 				});
 				opts.In("Logging and input file", g =>
 				{
-					g.On("output-file", 'o', "log messages to {0}").WithArg<string>("FILE").Do(filename => {});
-					g.On("apped-output", 'a', "append messages to {0}").WithArg<string>("FILE").Do(filename => {});
-					g.On("quiet", 'q', "quiet (no output)").Do(() => {});
-					g.On("debug", 'd', "print lots of debugging information").Do(() => {});
+					g.On("output-file", 'o', "log messages to {0}").WithArg<string>("FILE").Do(filename => settings.Logging.WriteTo = filename);
+					g.On("append-output", 'a', "append messages to {0}").WithArg<string>("FILE").Do(filename => settings.Logging.AppendTo = filename);
+					g.On("quiet", 'q', "quiet (no output)").Do(() => { settings.Quiet = true;});
+					g.On("debug", 'd', "print lots of debugging information").Do(() => settings.Logging.Debug = true);
 				});
 			
-				opts.In("Download", g =>
-				{
+				opts.In("Download", g => {
 					g.On("tries", 't', "set number of retries to {0} (0 - unlimited)").WithArg<int>("NUMBER").Do(retries => {});
-					g.On("output-document", 'O', "write documents to {0}").WithArg<string>("FILE").Do(filename => {});
+					g.On("output-document", 'O', "write documents to {0}").WithArg<string>("FILE").Do(filename => settings.Download.OutputDocument = filename);
 					g.On("no-clobber", 'n', "skip downloads that would download to existing files").Do(() => {});
 					g.On("continue", 'c', "resume getting a partially-downloaded file").Do(() => {});
 					g.On("timestamping", 'N', "don't re-retrieve files unless newer than local").Do(() => {});
 					g.On("server-response", 'S', "print server response").Do(() => {});
-					g.On("spider", "don't downloadanything").Do(() => {});
+					g.On("spider", "don't download anything").Do(() => {});
 					g.On("timeout", 'T', "set all timeout values to {0}").WithArg<int>("SECONDS").Do(timeout => {});
 					g.On("user", "set both ftp and http user to {0}").WithArg<string>("USER").Do(user => {});
 					g.On("password", "set both ftp and http password to {0}").WithArg<string>("PASSWORD").Do(password => {});
@@ -78,41 +79,99 @@ namespace NuTools.WGet
 				}
 				#endregion
 
-				#region Grepping
+				#region Getting
+
+				Action<string> log = text => { if(!settings.Quiet) Console.Out.WriteLine(text); };
+				
+				var wait = new System.Threading.EventWaitHandle(false, System.Threading.EventResetMode.AutoReset);
+				
+				using(var client = new WebClientWithInfo())
+				{
+					client.Headers[HttpRequestHeader.UserAgent] = settings.Http.UserAgent;
+					client.Headers[HttpRequestHeader.Accept] = "*/*";
+					
+					client.GotResponse += (object _, WebClientWithInfo.ResponseEventArgs e) => {
+						log("Got response...");
+						log("Length: {0}".With(e.Response.ContentLength > -1 ? e.Response.ContentLength.ToString() : "unspecfied"));
+						log("Saving to: '{0}'\n".With(settings.Download.OutputDocument));
+					};
+					
+					client.DownloadProgressChanged += (object _, DownloadProgressChangedEventArgs e) => {
+						log("progress: {0}/{1} ({2}%)".With(e.BytesReceived, e.TotalBytesToReceive, e.ProgressPercentage));
+					};
+
+					client.DownloadDataCompleted += (_, e) => wait.Set();
+
+					settings.Urls.Each(url => {
+						client.DownloadDataAsync(new Uri(url));
+						// update progressbar etc
+						wait.WaitOne();
+					});
+				};
+				
+				
 				#endregion
 
 				Environment.Exit(0);
 			}
 			catch (Exception ex)
 			{
-				if(!settings.SuppressErrorMessages)
+				if(!settings.Quiet)
 					Console.Error.WriteLine(ex.Message);
 				Environment.Exit(2);
 			}
 		}
 	}
-
-	enum OnlyFileNames
+	
+	public class WebClientWithInfo : WebClient
 	{
-		No = 0,
-		Matching,
-		NonMatching
+		public class ResponseEventArgs : EventArgs
+		{
+			public WebResponse Response;
+		}
+		public event EventHandler<ResponseEventArgs> GotResponse;
+		
+		protected override WebResponse GetWebResponse (WebRequest request)
+		{
+			var response = base.GetWebResponse(request);
+			OnGotResponse(new ResponseEventArgs { Response = response });
+			return response;
+		}
+		
+		protected virtual void OnGotResponse(ResponseEventArgs args)
+		{
+			if(GotResponse != null)
+				GotResponse(this, args);
+		}
 	}
-
+	
 	class Settings
 	{
-		public RegexOptions RegexOptions;
-		public string Pattern;
-		public List<string> Files = new List<string>();
-		public bool InvertMatch;
-		public bool SuppressErrorMessages;
+		public List<string> Urls = new List<string>();
+		public bool Quiet;
 		
-		public OutputSettings Output;
-		public struct OutputSettings
+		public LoggingSettings Logging = new LoggingSettings();
+		public class LoggingSettings
 		{
-			public bool LineNumbers;
-			public bool? FileNames;
-			public OnlyFileNames OnlyFileNames;
+			public bool Debug;
+			public string WriteTo;
+			public string AppendTo;
+		}
+		
+		public HttpSettings Http = new HttpSettings();
+		public class HttpSettings
+		{
+			public HttpSettings()
+			{
+				UserAgent = "Wget/{0} (nutools)".With(Assembly.GetEntryAssembly().GetName().Version);
+			}
+			public string UserAgent;
+		}
+		
+		public DownloadSettings Download = new DownloadSettings();
+		public class DownloadSettings
+		{
+			public string OutputDocument;
 		}
 	}
 }
