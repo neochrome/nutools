@@ -10,7 +10,7 @@ namespace NuTools.Common
 {
 	public class OptionParser : OptionGroup
 	{
-		public void In(string groupName, Action<IOptionGroup> optionsFor)
+		public void In(string groupName, Action<ICanBuildOptionGroup> optionsFor)
 		{
 			var group = new OptionGroup();
 			optionsFor(group);
@@ -44,7 +44,7 @@ namespace NuTools.Common
 						if (option.HasArgument && i + 1 < args.Length)
 							allParsedOk &= option.Receive(args[++i]);
 						else if (!option.HasArgument)
-							allParsedOk &= option.Receive(true.ToString());
+							allParsedOk &= option.ReceiveDefault();
 						else
 							return false;//error
 					}

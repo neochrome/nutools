@@ -4,35 +4,41 @@ namespace NuTools.Common.OptionParserSyntax
 {
 	public interface IArg<T>
 	{
+		IArg<T> WithParseErrorMessage(string message);
 		void Do(Action<T> action);
 	}
 
 	public interface IArgs<T>
 	{
+		IArgs<T> WithParseErrorMessage(string message);
 		void Do(Action<T[]> action);
 	}
 
-	public interface IArg
+	public interface ICanBuildArgument
 	{
 		IArg<T> Arg<T>(string name, string description);
 		IArgs<T> Args<T>(string name, string description);
 	}
 
-	public interface INoArg
+	public interface ICanBuildWithAction
 	{
 		void Do(Action action);
 	}
 
-	public interface IOption : INoArg
+	public interface ICanBuildWithArgument : ICanBuildWithAction
 	{
 		IArg<T> WithArg<T>(string name);
 	}
 
-	public interface IOptionGroup : IArg
+	public interface ICanBuildOption
 	{
-		IOption On(string name, char shortName, string description);
-		IOption On(char shortName, string description);
-		IOption On(string name, string description);
-		IArg Required { get; }
+		ICanBuildWithArgument On(string name, char shortName, string description);
+		ICanBuildWithArgument On(char shortName, string description);
+		ICanBuildWithArgument On(string name, string description);
+	}
+
+	public interface ICanBuildRequiredArgument
+	{
+		ICanBuildArgument Required { get; }
 	}
 }

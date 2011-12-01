@@ -3,7 +3,7 @@ using NuTools.Common.OptionParserSyntax;
 
 namespace NuTools.Common
 {
-	public class Option : OptionBase, INoArg
+	public class Option : OptionBase
 	{
 		public string Name;
 		public string ShortName;

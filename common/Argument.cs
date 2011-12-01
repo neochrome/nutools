@@ -7,6 +7,7 @@ namespace NuTools.Common
 	public abstract class Argument : OptionBase
 	{
 		public string Name;
+		public string ParseErrorMessage = "{0}: Received an invalid argument '{1}'";
 
 		public override bool Match(string argument)
 		{
@@ -27,9 +28,31 @@ namespace NuTools.Common
 	{
 		public override bool Receive(string value)
 		{
-			receivedValue = (T)Convert.ChangeType(value, typeof(T));
-			Parsed = true;
-			return true;
+			try
+			{
+				var typeOfT = typeof(T);
+				if(typeOfT.IsEnum)
+				{
+					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+				}
+				else
+				{
+					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+				}
+					
+				Parsed = true;
+				return true;
+			}
+			catch(Exception ex)
+			{
+				throw new OptionParserException(ParseErrorMessage.With(Name, value), ex);
+			}
+		}
+
+		IArg<T> IArg<T>.WithParseErrorMessage(string message)
+		{
+			this.ParseErrorMessage = message;
+			return this;
 		}
 
 		public void Do(Action<T> action)
@@ -52,8 +75,30 @@ namespace NuTools.Common
 	{
 		public override bool Receive(string value)
 		{
-			receivedValues.Add((T)Convert.ChangeType(value, typeof(T)));
-			return true;
+			try
+			{
+				var typeOfT = typeof(T);
+				if(typeOfT.IsEnum)
+				{
+					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+				}
+				else
+				{
+					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+				}
+					
+				return true;
+			}
+			catch(Exception ex)
+			{
+				throw new OptionParserException(ParseErrorMessage.With(Name, value), ex);
+			}
+		}
+
+		IArgs<T> IArgs<T>.WithParseErrorMessage(string message)
+		{
+			this.ParseErrorMessage = message;
+			return this;
 		}
 
 		public void Do(Action<T[]> action)

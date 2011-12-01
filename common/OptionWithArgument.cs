@@ -6,6 +6,8 @@ namespace NuTools.Common
 	public class OptionWithArgument<T> : Option, IArg<T>
 	{
 		public string ArgumentName;
+		public string ParseErrorMessage = "--{0}: Received an invalid argument '{1}'";
+
 		public override bool HasArgument { get { return true; } }
 
 		public override bool ReceiveDefault()
@@ -15,9 +17,31 @@ namespace NuTools.Common
 
 		public override bool Receive(string value)
 		{
-			receivedValue = (T)Convert.ChangeType(value, typeof(T));
-			Parsed = true;
-			return true;
+			try
+			{
+				var typeOfT = typeof(T);
+				if(typeOfT.IsEnum)
+				{
+					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+				}
+				else
+				{
+					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+				}
+					
+				Parsed = true;
+				return true;
+			}
+			catch(Exception ex)
+			{
+				throw new OptionParserException(ParseErrorMessage.With(Name, value), ex);
+			}
+		}
+		
+		IArg<T> IArg<T>.WithParseErrorMessage(string message)
+		{
+			this.ParseErrorMessage = message;
+			return this;
 		}
 
 		public void Do(Action<T> action)

@@ -50,6 +50,10 @@ namespace NuTools.WGet
 					g.On("output-document", 'O', "write documents to {0}").WithArg<string>("FILE").Do(filename => settings.Download.OutputDocument = filename);
 					g.On("no-clobber", 'n', "skip downloads that would download to existing files").Do(() => {});
 					g.On("continue", 'c', "resume getting a partially-downloaded file").Do(() => {});
+					g.On("progress", "select progress gauge {0}")
+					 .WithArg<ProgressType>("TYPE")
+					 .WithParseErrorMessage("--{0}: Invalid progress type '{1}'.\nValid choices are: None, Bar, Dot")
+					 .Do(type => settings.Download.ProgressType = type);
 					g.On("timestamping", 'N', "don't re-retrieve files unless newer than local").Do(() => {});
 					g.On("server-response", 'S', "print server response").Do(() => {});
 					g.On("spider", "don't download anything").Do(() => {});
@@ -145,6 +149,13 @@ namespace NuTools.WGet
 		}
 	}
 	
+	enum ProgressType
+	{
+		None = 0,
+		Bar,
+		Dot
+	}
+	
 	class Settings
 	{
 		public List<string> Urls = new List<string>();
@@ -172,6 +183,7 @@ namespace NuTools.WGet
 		public class DownloadSettings
 		{
 			public string OutputDocument;
+			public ProgressType ProgressType;
 		}
 	}
 }
