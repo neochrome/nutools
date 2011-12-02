@@ -6,7 +6,6 @@ namespace NuTools.Common
 {
 	public abstract class Argument : OptionBase
 	{
-		public string Name;
 		public string ParseErrorMessage = "{0}: Received an invalid argument '{1}'";
 
 		public override bool Match(string argument)
@@ -14,10 +13,7 @@ namespace NuTools.Common
 			return argument == "" && !Parsed;
 		}
 
-		public override bool ReceiveDefault()
-		{
-			return false;
-		}
+		public override void ReceiveDefault() {	}
 
 		public abstract bool SupportsMultipleValues { get; }
 		
@@ -26,27 +22,28 @@ namespace NuTools.Common
 
 	public class Argument<T> : Argument, IArg<T>
 	{
-		public override bool Receive(string value)
+		public override void Receive(string value)
 		{
+			T parsedValue;
 			try
 			{
 				var typeOfT = typeof(T);
 				if(typeOfT.IsEnum)
 				{
-					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+					parsedValue = (T)Enum.Parse(typeOfT, value, true);
 				}
 				else
 				{
-					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+					parsedValue = (T)Convert.ChangeType(value, typeof(T));
 				}
 					
 				Parsed = true;
-				return true;
 			}
 			catch(Exception ex)
 			{
 				throw new OptionParserException(ParseErrorMessage.With(Name, value), ex);
 			}
+			action(parsedValue);
 		}
 
 		IArg<T> IArg<T>.WithParseErrorMessage(string message)
@@ -60,34 +57,32 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public override void Tell()
+		public override void Finally()
 		{
-			action(receivedValue);
+			if(Required && !Parsed)
+				throw new OptionParserException("Missing argument: {0}".With(Name));
 		}
 
 		public override bool SupportsMultipleValues { get { return false; } }
 
-		private T receivedValue;
 		private Action<T> action = v => { };
 	}
 
 	public class Arguments<T> : Argument, IArgs<T>
 	{
-		public override bool Receive(string value)
+		public override void Receive(string value)
 		{
 			try
 			{
 				var typeOfT = typeof(T);
 				if(typeOfT.IsEnum)
 				{
-					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+					receivedValues.Add((T)Enum.Parse(typeOfT, value, true));
 				}
 				else
 				{
-					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+					receivedValues.Add((T)Convert.ChangeType(value, typeof(T)));
 				}
-					
-				return true;
 			}
 			catch(Exception ex)
 			{
@@ -106,7 +101,7 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public override void Tell()
+		public override void Finally()
 		{
 			action(receivedValues.ToArray());
 		}

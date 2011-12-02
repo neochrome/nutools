@@ -5,7 +5,6 @@ namespace NuTools.Common
 {
 	public class Option : OptionBase
 	{
-		public string Name;
 		public string ShortName;
 
 		public override bool Match(string argument)
@@ -13,15 +12,15 @@ namespace NuTools.Common
 			return Name == argument || ShortName == argument;
 		}
 
-		public override bool ReceiveDefault()
+		public override void ReceiveDefault()
 		{
-			return Receive(true.ToString());
+			Receive(true.ToString());
 		}
 
-		public override bool Receive(string value)
+		public override void Receive(string value)
 		{
 			Parsed = true;
-			return true;
+			action();
 		}
 
 		public void Do(Action action)
@@ -29,10 +28,10 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public override void Tell()
+		public override void Finally()
 		{
-			if (Parsed)
-				action();
+			if(Required && !Parsed)
+				throw new OptionParserException("Missing required option: --{0}".With(Name));
 		}
 
 		public virtual string NameForUsage { get { return string.IsNullOrEmpty(Name) ? "" : "--" + Name; } }

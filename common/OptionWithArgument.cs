@@ -10,32 +10,30 @@ namespace NuTools.Common
 
 		public override bool HasArgument { get { return true; } }
 
-		public override bool ReceiveDefault()
-		{
-			return false;
-		}
+		public override void ReceiveDefault() { }
 
-		public override bool Receive(string value)
+		public override void Receive(string value)
 		{
+			T parsedValue;
 			try
 			{
 				var typeOfT = typeof(T);
 				if(typeOfT.IsEnum)
 				{
-					receivedValue = (T)Enum.Parse(typeOfT, value, true);
+					parsedValue = (T)Enum.Parse(typeOfT, value, true);
 				}
 				else
 				{
-					receivedValue = (T)Convert.ChangeType(value, typeof(T));
+					parsedValue = (T)Convert.ChangeType(value, typeof(T));
 				}
 					
 				Parsed = true;
-				return true;
 			}
 			catch(Exception ex)
 			{
 				throw new OptionParserException(ParseErrorMessage.With(Name, value), ex);
 			}
+			action(parsedValue);
 		}
 		
 		IArg<T> IArg<T>.WithParseErrorMessage(string message)
@@ -49,16 +47,15 @@ namespace NuTools.Common
 			this.action = action;
 		}
 
-		public override void Tell()
+		public override void Finally()
 		{
-			if (Parsed)
-                action(receivedValue);
+			if(Required && !Parsed)
+				throw new OptionParserException("Missing required option: --{0}".With(Name));
 		}
 
 		public override string NameForUsage { get { return base.NameForUsage + "=" + ArgumentName; } }
 		public override string DescriptionForUsage { get { return Description.Replace("{ARG}", ArgumentName); } }
 
-		private T receivedValue;
 		private Action<T> action = v => { };
 	}
 }

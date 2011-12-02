@@ -17,10 +17,10 @@ namespace NuTools.WGet
 		public static void Main(string[] args)
 		{
 			var settings = new Settings();
+			var opts = new OptionParser();
 			try
 			{
 				#region Option parsing
-				var opts = new OptionParser();
 
 				opts.Required.Arg<string>("URL", "").Do(settings.Urls.Add);
 
@@ -75,12 +75,7 @@ namespace NuTools.WGet
 					g.On("post-file", "use the POST method; send contents of {0}").WithArg<string>("FILE").Do(postDataFile => {});
 				});
 				
-				if (!opts.Parse(args))
-				{
-					opts.WriteUsageHeader(Console.Error);
-					Console.Error.WriteLine("\nTry `wget --help' for more options.");
-					Environment.Exit(2);
-				}
+				opts.Parse(args);
 				#endregion
 
 				#region Getting
@@ -117,6 +112,13 @@ namespace NuTools.WGet
 				#endregion
 
 				Environment.Exit(0);
+			}
+			catch (OptionParserException ex)
+			{
+				Console.Error.WriteLine(ex.Message);
+				opts.WriteUsageHeader(Console.Error);
+				Console.Error.WriteLine("\nTry `wget --help' for more options.");
+				Environment.Exit(2);
 			}
 			catch (Exception ex)
 			{

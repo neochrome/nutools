@@ -17,10 +17,9 @@ namespace NuTools.Common
 			groups.Add(groupName, group);
 		}
 
-		public bool Parse(string[] args)
+		public void Parse(string[] args)
 		{
 			var expr = new Regex(@"^--(?<name>[a-zA-Z0-9]+[\-a-zA-Z0-9]*)(=(?<value>\w+))?|-(?<short_name>[a-zA-Z0-9]+)$", RegexOptions.ExplicitCapture);
-			var allParsedOk = true;
 
 			for (var i = 0; i < args.Length; i++)
 			{
@@ -31,9 +30,9 @@ namespace NuTools.Common
 					{
 						var option = FindOption(match.Groups["name"].Value);
 						if (match.Groups["value"].Success)
-							allParsedOk &= option.Receive(match.Groups["value"].Value);
+							option.Receive(match.Groups["value"].Value);
 						else
-							allParsedOk &= option.ReceiveDefault();
+							option.ReceiveDefault();
 					}
 					else
 					{
@@ -42,20 +41,20 @@ namespace NuTools.Common
 
 						var option = FindOption(names.Last());
 						if (option.HasArgument && i + 1 < args.Length)
-							allParsedOk &= option.Receive(args[++i]);
+							option.Receive(args[++i]);
 						else if (!option.HasArgument)
-							allParsedOk &= option.ReceiveDefault();
+							option.ReceiveDefault();
 						else
-							return false;//error
+							throw new OptionParserException("--{0}: Missing argument".With(option.Name));
 					}
 				}
 				else
 				{
-					allParsedOk &= FindOption(string.Empty).Receive(args[i]);
+					// Handle arguments
+					FindOption(string.Empty).Receive(args[i]);
 				}
 			}
-			AllOptions.Each(o => o.Tell());
-			return allParsedOk && AllOptions.Where(o => o.Required).All(o => o.Parsed);
+			AllOptions.Each(o => o.Finally());
 		}
 
 		public string Header = string.Empty;
@@ -141,7 +140,10 @@ namespace NuTools.Common
 
 		private OptionBase FindOption(string name)
 		{
-			return AllOptions.FirstOrDefault(o => o.Match(name)) ?? OptionBase.Default;
+			var option = AllOptions.FirstOrDefault(o => o.Match(name));
+			if(option == null)
+				throw new OptionParserException("Unknown option: {0}".With(name));
+			return option;
 		}
 
 		private IEnumerable<OptionBase> AllOptions { get { return Options.Union(groups.Values.SelectMany(g => g.Options)); } }

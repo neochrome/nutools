@@ -56,12 +56,7 @@ namespace NuTools.Grep
 				opts.Footer += "two FILEs given, assume -h. Exit status is 0 if match, 1 if no match,\n";
 				opts.Footer += "and 2 if trouble.";
 
-				if (!opts.Parse(args))
-				{
-					if (!settings.SuppressErrorMessages)
-						opts.WriteUsage(Console.Error);
-					Environment.Exit(2);
-				}
+				opts.Parse(args);
 				#endregion
 
 				#region Grepping

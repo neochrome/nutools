@@ -49,12 +49,7 @@ namespace NuTools.Sed
 				opts.Footer = "With no FILE, or when FILE is -, read standard input.\n";
 				opts.Footer += "Exit status is 0 on success and 2 if trouble.";
 
-				if (!opts.Parse(args))
-				{
-					if (!settings.SuppressErrorMessages)
-						opts.WriteUsage(Console.Error);
-					Environment.Exit(2);
-				}
+				opts.Parse(args);
 				#endregion
 				
 				#region Sedding
