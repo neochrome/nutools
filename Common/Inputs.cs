@@ -9,13 +9,12 @@ namespace NuTools.Common
 	{
 		public Inputs(IEnumerable<string> filesOrStandardInput)
 		{
-			Func<string, bool> fromStdIn = f => f == "-";
 			var fileNames = new Glob(Environment.CurrentDirectory);
 
-			filesOrStandardInput.Except(fromStdIn).Each(fileNames.Include);
-			inputs = fileNames.Select(f => new Input { Name = f, Open = () => File.OpenText(f) }).ToList();
-			if (filesOrStandardInput.Any(fromStdIn) || inputs.Count == 0)
-				inputs.Insert(0, new Input { Name = "(standard input)", Open = () => new StreamReader(Console.OpenStandardInput()) });
+			filesOrStandardInput.Except(Input.IsStandardInput).Each(fileNames.Include);
+			inputs = fileNames.Select(f => new Input(f)).ToList();
+			if (filesOrStandardInput.Any(Input.IsStandardInput) || inputs.Count == 0)
+				inputs.Insert(0, Input.FromStandardInput());
 		}
 
 		public bool Any { get { return inputs.Count > 1; } }
@@ -29,18 +28,13 @@ namespace NuTools.Common
 		{
 			foreach (var input in inputs)
 			{
-				using (var reader = input.Open())
+				using (var reader = new StreamReader(input.Open()))
 				{
 					if (!process(input.Name, reader)) break;
 				}
 			}
 		}
 
-		private struct Input
-		{
-			public string Name;
-			public Func<StreamReader> Open;
-		}
 		private readonly List<Input> inputs;
 	}
 }
