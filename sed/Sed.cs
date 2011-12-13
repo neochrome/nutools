@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Reflection;
 
 using NuTools.Common;
 
-[assembly: AssemblyTitle("sed")]
-[assembly: AssemblyDescription("a stream editor")]
-
 namespace NuTools.Sed
 {
-	class Sed
+	public class Sed : ICommand
 	{
-		public static void Main(string[] args)
+		public void Main(string[] args)
 		{
 			var settings = new Settings();
 			try

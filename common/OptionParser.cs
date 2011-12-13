@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using NuTools.Common.OptionParserSyntax;
 
 namespace NuTools.Common
 {
@@ -74,7 +73,7 @@ namespace NuTools.Common
 
 		public void WriteUsageHeader(TextWriter output)
 		{
-			var applicationName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+			var applicationName = Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName);
 			output.Write("Usage: {0} [OPTION]...", applicationName);
 			output.Write(
 				AllOptions

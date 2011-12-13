@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BB130016-38C4-4A5A-96DA-65209FE7BC83}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NuTools</RootNamespace>
+    <AssemblyName>nutools</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="All.cs" />
+    <Compile Include="Bootstrap.cs" />
+    <Compile Include="Common\Argument.cs" />
+    <Compile Include="Common\EnumerableExtensions.cs" />
+    <Compile Include="Common\FixedWidthFormatProvider.cs" />
+    <Compile Include="Common\Glob.cs" />
+    <Compile Include="Common\Inputs.cs" />
+    <Compile Include="Common\Option.cs" />
+    <Compile Include="Common\OptionBase.cs" />
+    <Compile Include="Common\OptionGroup.cs" />
+    <Compile Include="Common\OptionParser.cs" />
+    <Compile Include="Common\OptionParserException.cs" />
+    <Compile Include="Common\OptionParserSyntax.cs" />
+    <Compile Include="Common\OptionWithArgument.cs" />
+    <Compile Include="Common\StringExtensions.cs" />
+    <Compile Include="Df\Df.cs" />
+    <Compile Include="Df\Drive.cs" />
+    <Compile Include="Df\DriveSummary.cs" />
+    <Compile Include="Df\FileSizeFormatProvider.cs" />
+    <Compile Include="Df\IDrive.cs" />
+    <Compile Include="Df\NotSupportedDrive.cs" />
+    <Compile Include="Du\Du.cs" />
+    <Compile Include="Grep\Grep.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="NuTools.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Sed\Sed.cs" />
+    <Compile Include="UnknownCommand.cs" />
+    <Compile Include="WGet\WebClientWithInfo.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WGet\WGet.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Df\man.txt" />
+    <None Include="Du\man.txt" />
+    <None Include="Sed\man.txt" />
+    <None Include="WGet\man.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

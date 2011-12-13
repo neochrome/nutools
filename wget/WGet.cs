@@ -1,20 +1,15 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 using NuTools.Common;
 
-[assembly: AssemblyTitle("wget")]
-[assembly: AssemblyDescription("a non-interactive network retriever")]
-
 namespace NuTools.WGet
 {
-	class WGet
+	public class WGet : ICommand
 	{
-		public static void Main(string[] args)
+		public void Main(string[] args)
 		{
 			var settings = new Settings();
 			var opts = new OptionParser();
@@ -128,29 +123,7 @@ namespace NuTools.WGet
 			}
 		}
 	}
-	
-	public class WebClientWithInfo : WebClient
-	{
-		public class ResponseEventArgs : EventArgs
-		{
-			public WebResponse Response;
-		}
-		public event EventHandler<ResponseEventArgs> GotResponse;
-		
-		protected override WebResponse GetWebResponse (WebRequest request)
-		{
-			var response = base.GetWebResponse(request);
-			OnGotResponse(new ResponseEventArgs { Response = response });
-			return response;
-		}
-		
-		protected virtual void OnGotResponse(ResponseEventArgs args)
-		{
-			if(GotResponse != null)
-				GotResponse(this, args);
-		}
-	}
-	
+
 	enum ProgressType
 	{
 		None = 0,

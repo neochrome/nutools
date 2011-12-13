@@ -1,18 +1,14 @@
 using System;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 using NuTools.Common;
 
-[assembly: AssemblyTitle("grep")]
-[assembly: AssemblyDescription("a grep utility")]
-
 namespace NuTools.Grep
 {
-	class Grep
+	public class Grep : ICommand
 	{
-		public static void Main(string[] args)
+		public void Main(string[] args)
 		{
 			var settings = new Settings();
 			try
