@@ -26,6 +26,7 @@ namespace NuTools
 				}[command];
 
 				All.Commands
+					.Except<NuTools>()
 					.Select(c => c.Name.ToLower() + ".exe")
 					.Each(action);
 
@@ -46,9 +47,9 @@ namespace NuTools
 		{
 			var source = AppDomain.CurrentDomain.FriendlyName;
 			Console.Write("Linking {0} ==> {1} ", source, command);
-			if (File.Exists(command))
+			if (File.Exists(command) && !force)
 			{
-				Console.WriteLine("<== already exists, please remove and try again");
+				Console.WriteLine("<== already exists, please remove and try again (or use --force)");
 			}
 			else
 			{
@@ -58,9 +59,10 @@ namespace NuTools
 
 		private void RemoveSymLink(string command)
 		{
+			if(!File.Exists(command)) return;
 			Console.Write("Removing {0} ", command);
-			var symlink = File.GetAttributes(command) != FileAttributes.Normal;
-			if (symlink || force)
+			var symlink = (File.GetAttributes(command) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+			if(symlink || force)
 			{
 				File.Delete(command);
 				Console.WriteLine("success");
