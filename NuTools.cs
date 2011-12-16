@@ -10,33 +10,24 @@ namespace NuTools
 {
 	public class NuTools : ICommand
 	{
-		public void Main(string[] args)
+		public void WithOptions(OptionParser opts)
 		{
-			var opts = new OptionParser();
-			opts.Required.Arg<Command>("COMMAND", "creates symlinks for all contained commands").Do(command => this.command = command); 
+			opts.Required.Arg<Command>("COMMAND", "creates symlinks for all contained commands").Do(c => command = c);
 			opts.On("force", 'f', "forces creation/removal of symlinks").Do(() => force = true);
-			
-			try
-			{
-				opts.Parse(args);
+		}
 
-				var action = new Dictionary<Command, Action<string>> {
-					{ Command.Install, CreateSymLink },
-					{ Command.Uninstall, RemoveSymLink },
-				}[command];
+		public int Execute()
+		{
+			var action = new Dictionary<Command, Action<string>> {
+				{ Command.Install, CreateSymLink },
+				{ Command.Uninstall, RemoveSymLink },
+			}[command];
 
-				All.Commands
-					.Except<NuTools>()
-					.Select(c => c.Name.ToLower() + ".exe")
-					.Each(action);
-
-				Environment.Exit(0);
-			}
-			catch (Exception ex)
-			{
-				Console.Error.WriteLine(ex.Message);
-				Environment.Exit(1);
-			}
+			App.Commands
+				.Except<NuTools>()
+				.Select(c => c.Name.ToLower() + ".exe")
+				.Each(action);
+			return 0;
 		}
 
 		private bool force;

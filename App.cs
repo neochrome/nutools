@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -7,7 +8,7 @@ using NuTools.Common;
 
 namespace NuTools
 {
-	static class All
+	static class App
 	{
 		public static IEnumerable<Type> Commands
 		{
@@ -23,6 +24,11 @@ namespace NuTools
 		public static IEnumerable<Type> Except<T>(this IEnumerable<Type> source)
 		{
 			return source.Except(t => t == typeof(T));
+		}
+
+		public static string CommandName
+		{
+			get { return Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName).ToLower(); }
 		}
 	}
 }

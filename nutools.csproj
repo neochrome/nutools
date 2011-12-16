@@ -37,7 +37,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="All.cs" />
+    <Compile Include="App.cs" />
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Common\Argument.cs" />
     <Compile Include="Common\EnumerableExtensions.cs" />

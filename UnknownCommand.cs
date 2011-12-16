@@ -1,13 +1,16 @@
 using System;
+using NuTools.Common;
 
 namespace NuTools
 {
 	class UnknownCommand : ICommand
 	{
-		public void Main(string[] args)
+		public void WithOptions(OptionParser opts) { }
+
+		public int Execute()
 		{
-			Console.WriteLine("Unknown command: {0}", AppDomain.CurrentDomain.FriendlyName);
-			Environment.Exit(1);
+			Console.WriteLine("Unknown command: {0}", App.CommandName);
+			return 1;
 		}
 	}
 }

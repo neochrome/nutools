@@ -1,7 +1,10 @@
+using NuTools.Common;
+
 namespace NuTools
 {
 	interface ICommand
 	{
-		void Main(string[] args);
+		void WithOptions(OptionParser opts);
+		int Execute();
 	}
 }
