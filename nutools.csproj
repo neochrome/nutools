@@ -72,6 +72,7 @@
     <Compile Include="WGet\WGet.cs" />
     <Compile Include="Common\Input.cs" />
     <Compile Include="Common\Output.cs" />
+    <Compile Include="Exec\Exec.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Df\man.txt" />
