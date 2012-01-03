@@ -6,3 +6,4 @@ obj
 *.pidb
 *.resharper*
 _ReSharper*
+*.sln.*
